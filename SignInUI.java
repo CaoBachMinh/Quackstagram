@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -6,12 +5,10 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.swing.*;
 
 
-public class SignInUI extends JFrame {
-
-    private static final int WIDTH = 300;
-    private static final int HEIGHT = 500;
+public class SignInUI extends UIManager {
 
     private JTextField txtUsername;
     private JTextField txtPassword;
@@ -19,6 +16,7 @@ public class SignInUI extends JFrame {
     private JLabel lblPhoto;
     private User newUser;
     
+
 
     public SignInUI() {
         setTitle("Quackstagram - Register");
@@ -30,6 +28,7 @@ public class SignInUI extends JFrame {
     }
 
     private void initializeUI() {
+
         // Header with the Register label
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
@@ -110,14 +109,14 @@ public class SignInUI extends JFrame {
     System.out.println(enteredUsername+" <-> "+enteredPassword);
     if (verifyCredentials(enteredUsername, enteredPassword)) {
         System.out.println("It worked");
-         // Close the SignUpUI frame
-    dispose();
+             // Close the SignUpUI frame
+        dispose();
 
-    // Open the SignInUI frame
-    SwingUtilities.invokeLater(() -> {
-        InstagramProfileUI profileUI = new InstagramProfileUI(newUser);
-        profileUI.setVisible(true);
-    });
+        // Open the SignInUI frame
+        SwingUtilities.invokeLater(() -> {
+            InstagramProfileUI profileUI = new InstagramProfileUI(newUser);
+            profileUI.setVisible(true);
+        });
     } else {
         System.out.println("It Didn't");
     }
@@ -169,3 +168,5 @@ private boolean verifyCredentials(String username, String password) {
         });
     }
 }
+
+
