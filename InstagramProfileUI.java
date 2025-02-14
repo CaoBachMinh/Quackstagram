@@ -1,32 +1,20 @@
-import javax.swing.*;
-
-
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.awt.*;
 import java.nio.file.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.swing.*;
 
 
 
-public class InstagramProfileUI extends JFrame {
-
-    private static final int WIDTH = 300;
-    private static final int HEIGHT = 500;
-    private static final int PROFILE_IMAGE_SIZE = 80; // Adjusted size for the profile image to match UI
-    private static final int GRID_IMAGE_SIZE = WIDTH / 3; // Static size for grid images
-    private static final int NAV_ICON_SIZE = 20; // Corrected static size for bottom icons
-    private JPanel contentPanel; // Panel to display the image grid or the clicked image
-    private JPanel headerPanel;   // Panel for the header
-    private JPanel navigationPanel; // Panel for the navigation
-    private User currentUser; // User object to store the current user's information
+public class InstagramProfileUI extends UIManager {
+    JPanel contentPanel; // Panel to display the image grid or the clicked image
+    JPanel headerPanel;   // Panel for the header
+    JPanel navigationPanel; // Panel for the navigation
+    User currentUser; // User object to store the current user's information
 
     public InstagramProfileUI(User user) {
         this.currentUser = user;
@@ -36,76 +24,73 @@ public class InstagramProfileUI extends JFrame {
         int followingCount = 0;
        
         // Step 1: Read image_details.txt to count the number of images posted by the user
-    Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
-    try (BufferedReader imageDetailsReader = Files.newBufferedReader(imageDetailsFilePath)) {
-        String line;
-        while ((line = imageDetailsReader.readLine()) != null) {
-            if (line.contains("Username: " + currentUser.getUsername())) {
+        Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
+        try (BufferedReader imageDetailsReader = Files.newBufferedReader(imageDetailsFilePath)) {
+            String line;
+            while ((line = imageDetailsReader.readLine()) != null) {
+                if (line.contains("Username: " + currentUser.getUsername())) {
                 imageCount++;
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 
     // Step 2: Read following.txt to calculate followers and following
-    Path followingFilePath = Paths.get("data", "following.txt");
-    try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
-        String line;
-        while ((line = followingReader.readLine()) != null) {
-            String[] parts = line.split(":");
-            if (parts.length == 2) {
-                String username = parts[0].trim();
-                String[] followingUsers = parts[1].split(";");
-                if (username.equals(currentUser.getUsername())) {
-                    followingCount = followingUsers.length;
-                } else {
-                    for (String followingUser : followingUsers) {
-                        if (followingUser.trim().equals(currentUser.getUsername())) {
-                            followersCount++;
+        Path followingFilePath = Paths.get("data", "following.txt");
+        try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
+            String line;
+            while ((line = followingReader.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 2) {
+                    String username = parts[0].trim();
+                    String[] followingUsers = parts[1].split(";");
+                    if (username.equals(currentUser.getUsername())) {
+                        followingCount = followingUsers.length;
+                    } else {
+                        for (String followingUser : followingUsers) {
+                            if (followingUser.trim().equals(currentUser.getUsername())) {
+                                followersCount++;
+                            }
                         }
                     }
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 
-    String bio = "";
+        String bio = "";
 
-    Path bioDetailsFilePath = Paths.get("data", "credentials.txt");
-    try (BufferedReader bioDetailsReader = Files.newBufferedReader(bioDetailsFilePath)) {
-        String line;
-        while ((line = bioDetailsReader.readLine()) != null) {
-            String[] parts = line.split(":");
-            if (parts[0].equals(currentUser.getUsername()) && parts.length >= 3) {
-                bio = parts[2];
-                break; // Exit the loop once the matching bio is found
+        Path bioDetailsFilePath = Paths.get("data", "credentials.txt");
+        try (BufferedReader bioDetailsReader = Files.newBufferedReader(bioDetailsFilePath)) {
+            String line;
+            while ((line = bioDetailsReader.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts[0].equals(currentUser.getUsername()) && parts.length >= 3) {
+                    bio = parts[2];
+                    break; // Exit the loop once the matching bio is found
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
     
-    System.out.println("Bio for " + currentUser.getUsername() + ": " + bio);
-    currentUser.setBio(bio);
-    
+        System.out.println("Bio for " + currentUser.getUsername() + ": " + bio);
+        currentUser.setBio(bio);
+        currentUser.setFollowersCount(followersCount);
+        currentUser.setFollowingCount(followingCount);
+        currentUser.setPostCount(imageCount);
+        System.out.println(currentUser.getPostsCount());
 
-    currentUser.setFollowersCount(followersCount);
-    currentUser.setFollowingCount(followingCount);
-    currentUser.setPostCount(imageCount);
-
-    System.out.println(currentUser.getPostsCount());
-
-     setTitle("DACS Profile");
+        setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel();       // Initialize header panel
-        navigationPanel = createNavigationPanel(); // Initialize navigation panel
+        navigationPanel = createNavigationPanel();
 
         initializeUI();
     }
@@ -120,10 +105,11 @@ public class InstagramProfileUI extends JFrame {
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel();       // Initialize header panel
-        navigationPanel = createNavigationPanel(); // Initialize navigation panel
+        navigationPanel = createNavigationPanel();
         initializeUI();
     }
 
+    
     private void initializeUI() {
         getContentPane().removeAll(); // Clear existing components
         
@@ -138,20 +124,21 @@ public class InstagramProfileUI extends JFrame {
         repaint();
     }
 
-    private JPanel createHeaderPanel() {
+    @Override
+    JPanel createHeaderPanel() {
         boolean isCurrentUser = false;
         String loggedInUsername = "";
 
         // Read the logged-in user's username from users.txt
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = reader.readLine();
-        if (line != null) {
-            loggedInUsername = line.split(":")[0].trim();
-            isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                loggedInUsername = line.split(":")[0].trim();
+                isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 
     
        // Header Panel
@@ -189,45 +176,45 @@ public class InstagramProfileUI extends JFrame {
 // Follow Button
 // Follow or Edit Profile Button
 // followButton.addActionListener(e -> handleFollowAction(currentUser.getUsername()));
-JButton followButton;
-    if (isCurrentUser) {
-        followButton = new JButton("Edit Profile");
-    } else {
-        followButton = new JButton("Follow");
-
-        // Check if the current user is already being followed by the logged-in user
-        Path followingFilePath = Paths.get("data", "following.txt");
-        try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts[0].trim().equals(loggedInUsername)) {
-                    String[] followedUsers = parts[1].split(";");
-                    for (String followedUser : followedUsers) {
-                        if (followedUser.trim().equals(currentUser.getUsername())) {
-                            followButton.setText("Following");
-                            break;
+        JButton followButton;
+            if (isCurrentUser) {
+                followButton = new JButton("Edit Profile");
+            } else {
+                followButton = new JButton("Follow");
+            
+                // Check if the current user is already being followed by the logged-in user
+                Path followingFilePath = Paths.get("data", "following.txt");
+                try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        String[] parts = line.split(":");
+                        if (parts[0].trim().equals(loggedInUsername)) {
+                            String[] followedUsers = parts[1].split(";");
+                            for (String followedUser : followedUsers) {
+                                if (followedUser.trim().equals(currentUser.getUsername())) {
+                                    followButton.setText("Following");
+                                    break;
+                                }
+                            }
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                followButton.addActionListener(e -> {
+                    handleFollowAction(currentUser.getUsername());
+                    followButton.setText("Following");
+                });
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        followButton.addActionListener(e -> {
-            handleFollowAction(currentUser.getUsername());
-            followButton.setText("Following");
-        });
-    }
-    
-followButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-followButton.setFont(new Font("Arial", Font.BOLD, 12));
-followButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followButton.getMinimumSize().height)); // Make the button fill the horizontal space
-followButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
-followButton.setForeground(Color.BLACK);
-followButton.setOpaque(true);
-followButton.setBorderPainted(false);
-followButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
+
+        followButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        followButton.setFont(new Font("Arial", Font.BOLD, 12));
+        followButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followButton.getMinimumSize().height)); // Make the button fill the horizontal space
+        followButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
+        followButton.setForeground(Color.BLACK);
+        followButton.setOpaque(true);
+        followButton.setBorderPainted(false);
+        followButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
 
         
         // Add Stats and Follow Button to a combined Panel
@@ -240,28 +227,27 @@ followButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add so
         headerPanel.add(topHeaderPanel);
 
      // Profile Name and Bio Panel
-JPanel profileNameAndBioPanel = new JPanel();
-profileNameAndBioPanel.setLayout(new BorderLayout());
-profileNameAndBioPanel.setBackground(new Color(249, 249, 249));
+        JPanel profileNameAndBioPanel = new JPanel();
+        profileNameAndBioPanel.setLayout(new BorderLayout());
+        profileNameAndBioPanel.setBackground(new Color(249, 249, 249));
 
-JLabel profileNameLabel = new JLabel(currentUser.getUsername());
-profileNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-profileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10)); // Padding on the sides
+        JLabel profileNameLabel = new JLabel(currentUser.getUsername());
+        profileNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        profileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10)); // Padding on the sides
 
-JTextArea profileBio = new JTextArea(currentUser.getBio());
-System.out.println("This is the bio "+currentUser.getUsername());
-profileBio.setEditable(false);
-profileBio.setFont(new Font("Arial", Font.PLAIN, 12));
-profileBio.setBackground(new Color(249, 249, 249));
-profileBio.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10)); // Padding on the sides
+        JTextArea profileBio = new JTextArea(currentUser.getBio());
+        System.out.println("This is the bio "+currentUser.getUsername());
+        profileBio.setEditable(false);
+        profileBio.setFont(new Font("Arial", Font.PLAIN, 12));
+        profileBio.setBackground(new Color(249, 249, 249));
+        profileBio.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10)); // Padding on the sides
 
-profileNameAndBioPanel.add(profileNameLabel, BorderLayout.NORTH);
-profileNameAndBioPanel.add(profileBio, BorderLayout.CENTER);
+        profileNameAndBioPanel.add(profileNameLabel, BorderLayout.NORTH);
+        profileNameAndBioPanel.add(profileBio, BorderLayout.CENTER);
 
-headerPanel.add(profileNameAndBioPanel);
+        headerPanel.add(profileNameAndBioPanel);
 
 
-        
         return headerPanel;
 
     }
@@ -323,27 +309,7 @@ headerPanel.add(profileNameAndBioPanel);
     
 
     
-    
-    private JPanel createNavigationPanel() {
-        // Navigation Bar
-        JPanel navigationPanel = new JPanel();
-        navigationPanel.setBackground(new Color(249, 249, 249));
-        navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
-        navigationPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        navigationPanel.add(createIconButton("img/icons/home.png", "home"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/search.png","explore"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/add.png","add"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/heart.png","notification"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/profile.png", "profile"));
-
-        return navigationPanel;
-
-    }
 
 private void initializeImageGrid() {
     contentPanel.removeAll(); // Clear existing content
@@ -379,7 +345,7 @@ private void initializeImageGrid() {
 }
 
 
-
+    
     private void displayImage(ImageIcon imageIcon) {
         contentPanel.removeAll(); // Remove existing content
         contentPanel.setLayout(new BorderLayout()); // Change layout for image display
@@ -408,64 +374,7 @@ private void initializeImageGrid() {
         return label;
     }
 
-    private JButton createIconButton(String iconPath, String buttonType) {
-        ImageIcon iconOriginal = new ImageIcon(iconPath);
-        Image iconScaled = iconOriginal.getImage().getScaledInstance(NAV_ICON_SIZE, NAV_ICON_SIZE, Image.SCALE_SMOOTH);
-        JButton button = new JButton(new ImageIcon(iconScaled));
-        button.setBorder(BorderFactory.createEmptyBorder());
-        button.setContentAreaFilled(false);
-    
-        // Define actions based on button type
-        if ("home".equals(buttonType)) {
-            button.addActionListener(e -> openHomeUI());
-        } else if ("profile".equals(buttonType)) {
-            //
-        } else if ("notification".equals(buttonType)) {
-            button.addActionListener(e -> notificationsUI());
-        } else if ("explore".equals(buttonType)) {
-            button.addActionListener(e -> exploreUI());
-        } else if ("add".equals(buttonType)) {
-            button.addActionListener(e -> ImageUploadUI());
-        }
-        return button;
-    
-        
-    }
- 
-    private void ImageUploadUI() {
-        // Open InstagramProfileUI frame
-        this.dispose();
-        ImageUploadUI upload = new ImageUploadUI();
-        upload.setVisible(true);
-    }
 
-    private void openProfileUI() {
-        // Open InstagramProfileUI frame
-        this.dispose();
-        InstagramProfileUI profileUI = new InstagramProfileUI();
-        profileUI.setVisible(true);
-    }
- 
-     private void notificationsUI() {
-        // Open InstagramProfileUI frame
-        this.dispose();
-        NotificationsUI notificationsUI = new NotificationsUI();
-        notificationsUI.setVisible(true);
-    }
- 
-    private void openHomeUI() {
-        // Open InstagramProfileUI frame
-        this.dispose();
-        QuakstagramHomeUI homeUI = new QuakstagramHomeUI();
-        homeUI.setVisible(true);
-    }
- 
-    private void exploreUI() {
-        // Open InstagramProfileUI frame
-        this.dispose();
-        ExploreUI explore = new ExploreUI();
-        explore.setVisible(true);
-    }   
 
     
 }

@@ -9,10 +9,7 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class SignUpUI extends JFrame {
-
-    private static final int WIDTH = 300;
-    private static final int HEIGHT = 500;
+public class SignUpUI extends UIManager {
 
     private JTextField txtUsername;
     private JTextField txtPassword;
