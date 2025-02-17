@@ -46,19 +46,13 @@ public class QuakstagramHomeUI extends UIManager {
         add(cardPanel, BorderLayout.CENTER);
         cardLayout.show(cardPanel, "Home"); // Start with the home view
         
-         // Header Panel (reuse from InstagramProfileUI or customize for home page)
-          // Header with the Register label
-
-
-
+        // Header Panel (reuse from InstagramProfileUI or customize for home page)
+        // Header with the Register label
         JPanel headerPanel =  createHeaderPanel();
         add(headerPanel, BorderLayout.NORTH);
 
-
         // Navigation Bar
         JPanel navigationPanel = createNavigationPanel();
-        
-
         add(navigationPanel, BorderLayout.SOUTH);
     }
 
@@ -74,9 +68,6 @@ public class QuakstagramHomeUI extends UIManager {
         populateContentPanel(contentPanel, sampleData);
         add(scrollPane, BorderLayout.CENTER);
 
-
-        
-
          // Set up the home panel
          contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
          homePanel.add(scrollPane, BorderLayout.CENTER);
@@ -86,66 +77,13 @@ public class QuakstagramHomeUI extends UIManager {
 
 
     private void populateContentPanel(JPanel panel, String[][] sampleData) {
-
          for (String[] postData : sampleData) {
-            JPanel itemPanel = new JPanel();
-            itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
-            itemPanel.setBackground(Color.WHITE); // Set the background color for the item panel
-            itemPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            itemPanel.setAlignmentX(CENTER_ALIGNMENT);
-            JLabel nameLabel = new JLabel(postData[0]);
-            nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+             ContentBox post = new ContentBox(postData, IMAGE_WIDTH, IMAGE_HEIGHT, LIKE_BUTTON_COLOR);
 
-            // Crop the image to the fixed size
-            JLabel imageLabel = new JLabel();
-            imageLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            imageLabel.setPreferredSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
-            imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Add border to image label
-            String imageId = new File(postData[3]).getName().split("\\.")[0];
-            try {
-                BufferedImage originalImage = ImageIO.read(new File(postData[3]));
-                BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), IMAGE_WIDTH), Math.min(originalImage.getHeight(), IMAGE_HEIGHT));
-                ImageIcon imageIcon = new ImageIcon(croppedImage);
-                imageLabel.setIcon(imageIcon);
-            } catch (IOException ex) {
-                // Handle exception: Image file not found or reading error
-                imageLabel.setText("Image not found");
-            }
+             setUpLikeButtonEvent(post);
+             setUpDisplayImageEvent(post);
 
-            JLabel descriptionLabel = new JLabel(postData[1]);
-            descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            JLabel likesLabel = new JLabel(postData[2]);
-            likesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            JButton likeButton = new JButton("❤");
-            likeButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            likeButton.setBackground(LIKE_BUTTON_COLOR); // Set the background color for the like button
-            likeButton.setOpaque(true);
-            likeButton.setBorderPainted(false); // Remove border
-            likeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    handleLikeAction(imageId, likesLabel);
-                }
-            });
-
-            itemPanel.add(nameLabel);
-            itemPanel.add(imageLabel);
-            itemPanel.add(descriptionLabel);
-            itemPanel.add(likesLabel);
-            itemPanel.add(likeButton);
-
-            panel.add(itemPanel);
-
-              // Make the image clickable
-              imageLabel.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    displayImage(postData); // Call a method to switch to the image view
-                }
-            });
-        
+             panel.add(post.getItemPanel());
 
             // Grey spacing panel
             JPanel spacingPanel = new JPanel();
@@ -213,7 +151,15 @@ private void handleLikeAction(String imageId, JLabel likesLabel) {
     }
 }
 
-
+private void setUpLikeButtonEvent(ContentBox post){
+    JButton likeButton = post.getLikeButton();
+    likeButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            handleLikeAction(post.getImageId(), post.getLikesLabel());
+        }
+    });
+}
     
 private String[][] createSampleData() {
     String currentUser = "";
@@ -242,7 +188,6 @@ private String[][] createSampleData() {
     // Temporary structure to hold the data
     String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
     int count = 0;
-
     try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
         String line;
         while ((line = reader.readLine()) != null && count < tempData.length) {
@@ -329,6 +274,16 @@ private String[][] createSampleData() {
 
 
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
+    }
+
+    private void setUpDisplayImageEvent(ContentBox post){
+        JLabel imageLabel = post.getImageLabel();
+        imageLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                displayImage(post.getPostData()); // Call a method to switch to the image view
+            }
+        });
     }
 
     private void refreshDisplayImage(String[] postData, String imageId) {
