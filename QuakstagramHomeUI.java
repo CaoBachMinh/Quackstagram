@@ -76,7 +76,6 @@ public class QuakstagramHomeUI extends UIManager {
 
 
         
-
          // Set up the home panel
          contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
          homePanel.add(scrollPane, BorderLayout.CENTER);
@@ -172,6 +171,7 @@ private void handleLikeAction(String imageId, JLabel likesLabel) {
     } catch (IOException e) {
         e.printStackTrace();
     }
+
 
     // Read and update image_details.txt
     try (BufferedReader reader = Files.newBufferedReader(detailsPath)) {

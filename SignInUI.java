@@ -14,7 +14,12 @@ public class SignInUI extends UIManager {
     private JTextField txtPassword;
     private JButton btnSignIn, btnRegisterNow;
     private JLabel lblPhoto;
-    private User newUser;
+    // private User newUser;
+    private LoggedinUser loggedinUser;
+
+    DataManager credentialsManager;
+    // DataManager followingManager;
+    DataManager imageDetailManager; 
     
 
 
@@ -25,6 +30,15 @@ public class SignInUI extends UIManager {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         initializeUI();
+
+        credentialsManager = new CredentialsManager();
+        credentialsManager.readFile();
+
+        // followingManager = new FollowingManager();
+        // followingManager.readFile();
+
+        imageDetailManager = new ImageDetailManager();
+        imageDetailManager.readFile();
     }
 
     private void initializeUI() {
@@ -48,7 +62,7 @@ public class SignInUI extends UIManager {
         photoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
 
-        // Text fields panel
+        // Text fields panel5
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
@@ -114,7 +128,7 @@ public class SignInUI extends UIManager {
 
         // Open the SignInUI frame
         SwingUtilities.invokeLater(() -> {
-            InstagramProfileUI profileUI = new InstagramProfileUI(newUser);
+            InstagramProfileUI profileUI = new InstagramProfileUI(loggedinUser);
             profileUI.setVisible(true);
         });
     } else {
@@ -141,9 +155,9 @@ private boolean verifyCredentials(String username, String password) {
             if (credentials[0].equals(username) && credentials[1].equals(password)) {
             String bio = credentials[2];
             // Create User object and save information
-        newUser = new User(username, bio, password); // Assuming User constructor takes these parameters
-        saveUserInformation(newUser);
-    
+        // newUser = new User(username, bio); // Assuming User constructor takes these parameters
+        LoggedinUser.setLoggedinUser(username,bio);
+        loggedinUser = LoggedinUser.getInstance();
                 return true;
             }
         }

@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.stream.Stream;
@@ -15,13 +14,25 @@ public class InstagramProfileUI extends UIManager {
     JPanel headerPanel;   // Panel for the header
     JPanel navigationPanel; // Panel for the navigation
     User currentUser; // User object to store the current user's information
+    DataManager followingManager;
 
     public InstagramProfileUI(User user) {
         this.currentUser = user;
          // Initialize counts
+
+        followingManager =  new FollowingManager();
+        FollowingManager.updateCurrentUser(user);
+        followingManager.readFile();
+
+
+
+
+
+
         int imageCount = 0;
         int followersCount = 0;
         int followingCount = 0;
+        
        
         // Step 1: Read image_details.txt to count the number of images posted by the user
         Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
@@ -112,6 +123,9 @@ public class InstagramProfileUI extends UIManager {
     
     private void initializeUI() {
         getContentPane().removeAll(); // Clear existing components
+
+
+ 
         
         // Re-add the header and navigation panels
         add(headerPanel, BorderLayout.NORTH);
@@ -122,6 +136,8 @@ public class InstagramProfileUI extends UIManager {
 
         revalidate();
         repaint();
+
+
     }
 
     @Override
@@ -130,24 +146,28 @@ public class InstagramProfileUI extends UIManager {
         String loggedInUsername = "";
 
         // Read the logged-in user's username from users.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                loggedInUsername = line.split(":")[0].trim();
-                isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+        //     String line = reader.readLine();
+        //     if (line != null) {
+        //         loggedInUsername = line.split(":")[0].trim();
+        //         isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
+        //     }
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
+
+        LoggedinUser loggedinUser = LoggedinUser.getInstance();
+        loggedInUsername = loggedinUser.getUsername();
+        isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
 
     
        // Header Panel
         JPanel headerPanel = new JPanel();
-        try (Stream<String> lines = Files.lines(Paths.get("data", "users.txt"))) {
-            isCurrentUser = lines.anyMatch(line -> line.startsWith(currentUser.getUsername() + ":"));
-        } catch (IOException e) {
-            e.printStackTrace();  // Log or handle the exception as appropriate
-        }
+        // try (Stream<String> lines = Files.lines(Paths.get("data", "users.txt"))) {
+        //     isCurrentUser = lines.anyMatch(line -> line.startsWith(currentUser.getUsername() + ":"));
+        // } catch (IOException e) {
+        //     e.printStackTrace();  // Log or handle the exception as appropriate
+        // }
 
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(Color.GRAY);
@@ -254,56 +274,16 @@ public class InstagramProfileUI extends UIManager {
 
 
    private void handleFollowAction(String usernameToFollow) {
-    Path followingFilePath = Paths.get("data", "following.txt");
-    Path usersFilePath = Paths.get("data", "users.txt");
     String currentUserUsername = "";
-
-    try {
-        // Read the current user's username from users.txt
-        try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
-               currentUserUsername = parts[0];
-            }
-        }
-
+    LoggedinUser loggedinUser = LoggedinUser.getInstance();
+    currentUserUsername = loggedinUser.getUsername();
         System.out.println("Real user is "+currentUserUsername);
         // If currentUserUsername is not empty, process following.txt
         if (!currentUserUsername.isEmpty()) {
-            boolean found = false;
-            StringBuilder newContent = new StringBuilder();
 
-            // Read and process following.txt
-            if (Files.exists(followingFilePath)) {
-                try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(":");
-                        if (parts[0].trim().equals(currentUserUsername)) {
-                            found = true;
-                            if (!line.contains(usernameToFollow)) {
-                                line = line.concat(line.endsWith(":") ? "" : "; ").concat(usernameToFollow);
-                            }
-                        }
-                        newContent.append(line).append("\n");
-                    }
-                }
-            }
-
-            // If the current user was not found in following.txt, add them
-            if (!found) {
-                newContent.append(currentUserUsername).append(": ").append(usernameToFollow).append("\n");
-            }
-
-            // Write the updated content back to following.txt
-            try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
-                writer.write(newContent.toString());
-            }
+            FollowingManager.updateCurrentUser(currentUser);
+            followingManager.updateFile();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 }
 
     
@@ -373,8 +353,4 @@ private void initializeImageGrid() {
         label.setForeground(Color.BLACK);
         return label;
     }
-
-
-
-    
 }

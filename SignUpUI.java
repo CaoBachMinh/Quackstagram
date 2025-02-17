@@ -20,9 +20,13 @@ public class SignUpUI extends UIManager {
     private final String credentialsFilePath = "data/credentials.txt";
     private final String profilePhotoStoragePath = "img/storage/profile/";
     private JButton btnSignIn;
+    private DataManager credentialsManager;
 
 
     public SignUpUI() {
+
+
+
         setTitle("Quackstagram - Register");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -120,10 +124,14 @@ public class SignUpUI extends UIManager {
         String password = txtPassword.getText();
         String bio = txtBio.getText();
 
+        
         if (doesUsernameExist(username)) {
             JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            saveCredentials(username, password, bio);
+            CredentialsManager.addNewCredential(username,password,bio);
+            credentialsManager = new CredentialsManager();
+            credentialsManager.updateFile();
+            
             handleProfilePictureUpload();
             dispose();
     
@@ -170,15 +178,7 @@ public class SignUpUI extends UIManager {
         }
     }
     
-    private void saveCredentials(String username, String password, String bio) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/credentials.txt", true))) {
-            writer.write(username + ":" + password + ":" + bio);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-        
+
     private void openSignInUI() {
         // Close the SignUpUI frame
         dispose();
