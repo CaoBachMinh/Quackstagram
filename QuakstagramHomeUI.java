@@ -21,10 +21,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class QuakstagramHomeUI extends UIManager {
-    CardLayout cardLayout;
-    JPanel cardPanel;
-    JPanel homePanel;
-    JPanel imageViewPanel;
+    private CardLayout cardLayout;
+    private JPanel cardPanel;
+    private JPanel homePanel;
+    private JPanel imageViewPanel;
 
     public QuakstagramHomeUI() {
         setTitle("Quakstagram Home");

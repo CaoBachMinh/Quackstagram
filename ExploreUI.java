@@ -17,7 +17,6 @@ import javax.swing.*;
 
 public class ExploreUI extends UIManager {
 
-
     public ExploreUI() {
         setTitle("Explore");
         setSize(WIDTH, HEIGHT);
