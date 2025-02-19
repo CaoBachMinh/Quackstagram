@@ -1,9 +1,5 @@
 import java.awt.Color;
 import java.awt.Image;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -68,14 +64,18 @@ public class NavigationPanel extends UIManager {
         String loggedInUsername = "";
  
          // Read the logged-in user's username from users.txt
-     try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-         String line = reader.readLine();
-         if (line != null) {
-             loggedInUsername = line.split(":")[0].trim();
-         }
-     } catch (IOException e) {
-         e.printStackTrace();
-     }
+    //  try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+    //      String line = reader.readLine();
+    //      if (line != null) {
+    //          loggedInUsername = line.split(":")[0].trim();
+    //      }
+    //  } catch (IOException e) {
+    //      e.printStackTrace();
+    //  }
+
+     LoggedinUser loggedinUser = LoggedinUser.getInstance();
+     loggedInUsername = loggedinUser.getUsername();
+
       User user = new User(loggedInUsername);
         InstagramProfileUI profileUI = new InstagramProfileUI(user);
         profileUI.setVisible(true);
