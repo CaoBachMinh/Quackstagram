@@ -209,10 +209,3 @@ public class ExploreUI extends UIManager {
         repaint();
     }   
 }
-
-
-
-
-
-
-
