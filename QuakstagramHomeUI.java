@@ -19,6 +19,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class QuakstagramHomeUI extends UIManager {
     private CardLayout cardLayout;
@@ -70,8 +72,6 @@ public class QuakstagramHomeUI extends UIManager {
          // Set up the home panel
          contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
          homePanel.add(scrollPane, BorderLayout.CENTER);
-       
-
     }
 
 
@@ -92,73 +92,91 @@ public class QuakstagramHomeUI extends UIManager {
         }
     }
 
-private void handleLikeAction(String imageId, JLabel likesLabel) {
-        ImageDetailQuery likeAction = new ImageDetailQuery();
-        likeAction.incrementLikes(imageId);
-        likesLabel.setText("Likes: " + likeAction.getLikes(imageId));
-        likeAction.updateFile();
-}
-
-private void setUpLikeButtonEvent(ContentBox post){
-    JButton likeButton = post.getLikeButton();
-    likeButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            handleLikeAction(post.getImageId(), post.getLikesLabel());
-        }
-    });
-}
-    
-private String[][] createSampleData() {
-    String currentUser = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = reader.readLine();
-        if (line != null) {
-            currentUser = line.split(":")[0].trim();
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
+    private void handleLikeAction(String imageId, JLabel likesLabel) {
+            ImageDetailQuery likeAction = new ImageDetailQuery();
+            likeAction.incrementLikes(imageId);
+            likesLabel.setText("Likes: " + likeAction.getLikes(imageId));
+            likeAction.updateFile();
     }
 
-    String followedUsers = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith(currentUser + ":")) {
-                followedUsers = line.split(":")[1].trim();
-                break;
+    private void setUpLikeButtonEvent(ContentBox post){
+        JButton likeButton = post.getLikeButton();
+        likeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLikeAction(post.getImageId(), post.getLikesLabel());
             }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
+        });
     }
 
-    // Temporary structure to hold the data
-    String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
-    int count = 0;
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null && count < tempData.length) {
-            String[] details = line.split(", ");
-            String imagePoster = details[1].split(": ")[1];
-            if (followedUsers.contains(imagePoster)) {
-                String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
-                String description = details[2].split(": ")[1];
-                String likes = "Likes: " + details[4].split(": ")[1];
+    private String[][] createSampleData() {
+        String currentUser = getCurrentUser();
 
-                tempData[count++] = new String[]{imagePoster, description, likes, imagePath};
+        String followedUsers = getFollowedUsers(currentUser);
+
+        return setUpData(followedUsers);
+    }
+
+    private String[][] setUpData(String followedUsers){
+        // Temporary structure to hold the data
+        ArrayList<ArrayList<String>> data = new ArrayList<>();
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] details = line.split(", ");
+                String imagePoster = details[1].split(": ")[1];
+                if (followedUsers.contains(imagePoster)) {
+                    String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
+                    String description = details[2].split(": ")[1];
+                    String likes = "Likes: " + details[4].split(": ")[1];
+
+                    data.add(new ArrayList<>(Arrays.asList(imagePoster, description, likes, imagePath)));
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
+
+        return convertToArray(data);
     }
 
-    // Transfer the data to the final array
-    String[][] sampleData = new String[count][];
-    System.arraycopy(tempData, 0, sampleData, 0, count);
+    private String[][] convertToArray(ArrayList<ArrayList<String>> data){
+        String[][] result = new String[data.size()][];
+        int size = data.get(0).size();
+        for (int i = 0; i < data.size(); i++) {
+            result[i] = data.get(i).toArray(new String[size]);
+        }
+        return result;
+    }
 
-    return sampleData;
-}
+    private String getCurrentUser(){
+        String currentUser = "";
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                currentUser = line.split(":")[0].trim();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return currentUser;
+    }
+
+    private String getFollowedUsers(String currentUser){
+        String followedUsers = "";
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith(currentUser + ":")) {
+                    followedUsers = line.split(":")[1].trim();
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return followedUsers;
+    }
 
 
 
