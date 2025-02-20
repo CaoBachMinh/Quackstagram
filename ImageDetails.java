@@ -14,20 +14,23 @@ public class ImageDetails {
         this.timestampString = timestampString;
         this.likes = likes;
     }
-    String getUserName(){
+    public String getUserName(){
         return user.getUsername();
     }
-    String getImagePath(){
+    public String getImagePath(){
         return imagePath;
     }
-    String getDescription(){
+    public String getDescription(){
         return description;
     }
-    User getUser(){
+    public User getUser(){
         return user;
     }
+    public String getImageId(){
+        return imageID;
+    }
 
-    String getTimestamp() {
+    public String getTimestamp() {
         return timestampString;
     }
 

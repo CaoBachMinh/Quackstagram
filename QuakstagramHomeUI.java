@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class QuakstagramHomeUI extends UIManager {
     private CardLayout cardLayout;
@@ -69,7 +70,10 @@ public class QuakstagramHomeUI extends UIManager {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Vertical box layout
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); // Never allow horizontal scrolling
-        String[][] sampleData = createSampleData(); 
+
+        List<ImageDetails> sampleData = ImageDetailQuery.getFollowerImageDetails();
+
+
         populateContentPanel(contentPanel, sampleData);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -79,10 +83,13 @@ public class QuakstagramHomeUI extends UIManager {
     }
 
 
-    private void populateContentPanel(JPanel panel, String[][] sampleData) {
-         for (String[] postData : sampleData) {
+    private void populateContentPanel(JPanel panel, List<ImageDetails> sampleData) {
+         for (ImageDetails postData : sampleData) {
+
+             // create object holds post's data
              ContentBox post = new ContentBox(postData, IMAGE_WIDTH, IMAGE_HEIGHT, LIKE_BUTTON_COLOR);
 
+             // set up like and display event for post
              setUpLikeButtonEvent(post);
              setUpDisplayImageEvent(post);
 
@@ -96,9 +103,13 @@ public class QuakstagramHomeUI extends UIManager {
         }
     }
 
-    private void handleLikeAction(ContentBox post) {
-        ImageDetailQuery.incrementLikes(post.getImageId());
-        post.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(post.getImageId()));
+    private void handleLikeAction(ContentBox postData) {
+        ImageDetailQuery.incrementLikes(postData.getImageId());
+        postData.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(postData.getImageId()));
+        updateNotification(postData);
+    }
+
+    private void updateNotification(ContentBox post) {
         String currentUser = getCurrentUser();
         String imageOwner = ImageDetailQuery.getUsername(post.getImageId());
         String timestamp = ImageDetailQuery.getTimestamp(post.getImageId());
@@ -106,124 +117,47 @@ public class QuakstagramHomeUI extends UIManager {
         NotificationQuery.updateNotificationToCache(notification);
     }
 
-    private void setUpLikeButtonEvent(ContentBox post){
-        JButton likeButton = post.getLikeButton();
+    private void setUpLikeButtonEvent(ContentBox postData){
+        JButton likeButton = postData.getLikeButton();
         likeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLikeAction(post);
+                handleLikeAction(postData);
             }
         });
-    }
-
-    private String[][] createSampleData() {
-        String currentUser = getCurrentUser();
-
-        String followedUsers = getFollowedUsers(currentUser);
-
-        return setUpData(followedUsers);
-    }
-
-    private String[][] setUpData(String followedUsers){
-        // Temporary structure to hold the data
-        ArrayList<ArrayList<String>> data = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] details = line.split(", ");
-                String imagePoster = details[1].split(": ")[1];
-                if (followedUsers.contains(imagePoster)) {
-                    String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
-                    String description = details[2].split(": ")[1];
-                    String likes = "Likes: " + details[4].split(": ")[1];
-
-                    data.add(new ArrayList<>(Arrays.asList(imagePoster, description, likes, imagePath)));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return convertToArray(data);
-    }
-
-    private String[][] convertToArray(ArrayList<ArrayList<String>> data){
-        String[][] result = new String[data.size()][];
-        int size = data.get(0).size();
-        for (int i = 0; i < data.size(); i++) {
-            result[i] = data.get(i).toArray(new String[size]);
-        }
-        return result;
     }
 
     private String getCurrentUser(){
         User currentUser = LoggedinUser.getInstance();
         return currentUser.getUsername();
     }
-
-    private String getFollowedUsers(String currentUser){
-        String followedUsers = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith(currentUser + ":")) {
-                    followedUsers = line.split( ":")[1].trim();
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return followedUsers;
-    }
     
     private void displayImage(ContentBox postData) {
         imageViewPanel.removeAll(); // Clear previous content
 
-        // Display the image
-        JLabel fullSizeImageLabel = new JLabel();
-        fullSizeImageLabel.setHorizontalAlignment(JLabel.CENTER);
+        ContentBox currentPost = new ContentBox(
+                postData.getImageDetails(),
+                IMAGE_WIDTH,
+                IMAGE_HEIGHT,
+                LIKE_BUTTON_COLOR
+        );
 
-         try {
-                BufferedImage originalImage = ImageIO.read(new File(postData.getPath()));
-                BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), WIDTH-20), Math.min(originalImage.getHeight(), HEIGHT-40));
-                ImageIcon imageIcon = new ImageIcon(croppedImage);
-                fullSizeImageLabel.setIcon(imageIcon);
-            } catch (IOException ex) {
-                // Handle exception: Image file not found or reading error
-                fullSizeImageLabel.setText("Image not found");
-            }
+        currentPost.setUpFullSizeImage(WIDTH-20, HEIGHT-20);
 
-        //User Info 
-        JPanel userPanel = new JPanel();
-        userPanel.setLayout(new BoxLayout(userPanel,BoxLayout.Y_AXIS));
-        JLabel userName = postData.getNameLabel();
-        userName.setFont(new Font("Arial", Font.BOLD, 18));
-        userPanel.add(userName);//User Name
+        //User Info
+        JPanel userPanel = currentPost.getUserPanel();
 
-           JButton likeButton = new JButton("❤");
-            likeButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            likeButton.setBackground(LIKE_BUTTON_COLOR); // Set the background color for the like button
-            likeButton.setOpaque(true);
-            likeButton.setBorderPainted(false); // Remove border
-            likeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                   handleLikeAction(postData); // Update this line
-                   refreshDisplayImage(postData); // Refresh the view
-                }
-            });
-       
+        // Set up like and display event for post
+        setUpLikeButtonEvent(currentPost);
+        setUpRefreshDisplayImage(currentPost);
+
         // Information panel at the bottom
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(postData.getDescriptionLabel()); // Description
-        infoPanel.add(postData.getLikesLabel()); // Likes
-        infoPanel.add(likeButton);
+        JPanel infoPanel = currentPost.getInfoPanel();
 
-        imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);
+        imageViewPanel.add(currentPost.getImageLabel(), BorderLayout.CENTER);
         imageViewPanel.add(infoPanel, BorderLayout.SOUTH);
         imageViewPanel.add(userPanel,BorderLayout.NORTH);
-            
+
         imageViewPanel.revalidate();
         imageViewPanel.repaint();
 
@@ -231,31 +165,29 @@ public class QuakstagramHomeUI extends UIManager {
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
     }
 
-    private void setUpDisplayImageEvent(ContentBox post){
-        JLabel imageLabel = post.getImageLabel();
+    private void setUpRefreshDisplayImage(ContentBox postData) {
+        JButton likeButton = postData.getLikeButton();
+        likeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshDisplayImage(postData);
+            }
+        });
+    }
+
+    private void setUpDisplayImageEvent(ContentBox postData){
+        JLabel imageLabel = postData.getImageLabel();
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                displayImage(post); // Call a method to switch to the image view
+                displayImage(postData); // Call a method to switch to the image view
             }
         });
     }
 
     private void refreshDisplayImage(ContentBox postData) {
-        // Read updated likes count from image_details.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("ImageID: " + postData.getImageId())) {
-                    String likes = line.split(", ")[4].split(": ")[1];
-                    postData.setLikesLabel("Likes: " + likes);
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    
+        // update display
+        postData.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(postData.getImageId()));
         // Call displayImage with updated postData
         displayImage(postData);
     }

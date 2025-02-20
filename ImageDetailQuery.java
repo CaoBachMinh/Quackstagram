@@ -1,4 +1,3 @@
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,7 @@ public class ImageDetailQuery extends ImageDetailManager {
         return userToImageMap.get(username).size();
     }
 
-    public List<ImageDetails> getFollowerImageDetails(){
+    public static List<ImageDetails> getFollowerImageDetails(){
         FollowingQuery followingQuery = new FollowingQuery();
         Set<String> followersOfLoggedinUser = followingQuery.getFollowingOfLoggedInUser();
         List<ImageDetails> imageDetailsOfFollowers = new LinkedList<>();
@@ -34,7 +33,7 @@ public class ImageDetailQuery extends ImageDetailManager {
         return imageDetailsOfFollowers;
     }
 
-    public String getUsername(String imageID) {
+    public static String getUsername(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getUserName();
     }
