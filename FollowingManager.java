@@ -6,9 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FollowingManager extends DataManager {
-    // private Set <String> followers;
+
     private static Map <User,FollowDetails> followMap= new HashMap<>();
     // private static final  String filePath = "data/following.txt"; 
     private static Path followingFilePath = Paths.get("data", "following.txt");
@@ -18,22 +19,21 @@ public class FollowingManager extends DataManager {
     public FollowingManager() {}
 
     class FollowDetails{
-        // private Set<String> followers;
+        private Set<String> following;
         private int followersCount;
         private int followingCount;
 
-        FollowDetails(int followersCount, int followingCount) {
-            // this.followers = followers;
+        FollowDetails(Set<String> following,int followersCount, int followingCount) {
+            this.following = following;
             this.followersCount = followersCount;
             this.followingCount = followingCount;
         }
 
-        int getFollowersCount(){
-            return followersCount;
+        protected Set<String> getFollowingList(){
+            return following;
         }
-        int getFollowingCount(){
-            return followingCount;
-        }
+
+
     }
     @Override
     public void readFile() {
@@ -41,7 +41,10 @@ public class FollowingManager extends DataManager {
             String line;
             int followingCount=0;
             int followersCount=0;
-
+            Set<String> following = new HashSet<>();
+            String currentUsername = currentUser.getUsername(); 
+            User currentUserInfo = getUserDetails(currentUsername);
+            String bio = currentUserInfo.getBio();
 
             while ((line = followingReader.readLine()) != null) {
                 String[] parts = line.split(":");
@@ -51,26 +54,27 @@ public class FollowingManager extends DataManager {
                 String username = parts[0].trim();
                 String[] followingUsers = parts[1].split(";");
 
-
-                String currentUsername = currentUser.getUsername(); 
+                
                 if (username.equals(currentUsername)) {
                     followingCount = followingUsers.length;
+                    following = Arrays.stream(followingUsers)
+                    .map(String::trim)
+                    .collect(Collectors.toSet());//only get follower list of loggedin user
+                    
                 } else {
                     for (String followingUser : followingUsers) {
                         if (followingUser.trim().equals(currentUsername)) {
                             followersCount++;
                         }
                     }
-                }
-
-                FollowDetails follwerDetails = new FollowDetails(followersCount,followingCount);
-                // followers = new HashSet<>();
-                // for (String follower : followingUsers) {
-                //     followers.add(follower);
-                // }
-                followMap.put(currentUser,follwerDetails);
-                
+                }                
             }
+            FollowDetails follwerDetails = new FollowDetails(following,followersCount,followingCount);
+            currentUser.setFollowersCount(followersCount);
+            currentUser.setFollowingCount(followingCount);
+            currentUser.setBio(bio);
+            followMap.put(currentUser,follwerDetails);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,7 +109,6 @@ public class FollowingManager extends DataManager {
                 newContent.append(loggedinUsername).append(": ").append(usernameToFollow).append("\n");
             }
 
-            // updateFollowerToCache(found);
 
             // Write the updated content back to following.txt
             try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
@@ -116,17 +119,6 @@ public class FollowingManager extends DataManager {
         }
 
     }
-
-
-    // private void updateFollowDetailToCache(boolean isFound) {
-    //     if (isFound) {
-    //         followersMap.computeIfAbsent(usernameToFollow, k -> new HashSet<>()).add(currentUserUsername);
-    //     } else {
-    //         followersMap.put(usernameToFollow, new HashSet<>(Collections.singleton(currentUserUsername)));
-    //     }
-    // }
-
-
     public static void updateCurrentUser(User newCurrentUser) {
         currentUser = newCurrentUser;
     }
@@ -135,28 +127,4 @@ public class FollowingManager extends DataManager {
         return followMap;
     }
 
-    // public void printFollowersMap() {
-    //     if (followersMap.isEmpty()) {
-    //         System.out.println("The followers map is empty.");
-    //         return;
-    //     }
-
-    //     for (Map.Entry<String, Set<String>> entry : followersMap.entrySet()) {
-    //         String username = entry.getKey();
-    //         Set<String> followers = entry.getValue();
-
-    //         // Print the username
-    //         System.out.println(username + ":");
-
-    //         // Print each follower
-    //         if (followers.isEmpty()) {
-    //             System.out.println("  No followers.");
-    //         } else {
-    //             for (String follower : followers) {
-    //                 System.out.println("  - " + follower);
-    //             }
-    //         }
-    //         System.out.println(); // Add a blank line for readability
-    //     }
-    // }
 }

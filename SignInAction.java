@@ -29,8 +29,6 @@ public class SignInAction {
             }
             
             if (credentialsQuery.verifyCredentials(username, password)) {
-                String bio = new CredentialsManager().getUserDetails(username).getBio();
-                LoggedinUser.setLoggedinUser(username,bio);
                 signInUI.dispose();
                 new InstagramProfileUI(LoggedinUser.getInstance()).setVisible(true);
             } else {

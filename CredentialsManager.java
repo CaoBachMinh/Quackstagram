@@ -55,6 +55,7 @@ public  class CredentialsManager extends DataManager {
             return false;
         }
         if(userPassword.get(username).equals(password)) {
+            LoggedinUser.setLoggedinUser(username);
             userPassword.clear();
             return true;
         }

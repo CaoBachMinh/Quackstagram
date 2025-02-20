@@ -25,10 +25,6 @@ public class InstagramProfileUI extends UIManager {
         followingManager.readFile();
 
 
-
-
-
-
         int imageCount = 0;
         int followersCount = 0;
         int followingCount = 0;
