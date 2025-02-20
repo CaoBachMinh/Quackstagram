@@ -10,7 +10,7 @@ public class ImageDetailQuery extends ImageDetailManager {
     public static int getImageUserCount(String username) {
         return userImageCounts.get(username);
     }
-    public String getUsername(String imageID) {
+    public static String getUsername(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getUserName();
     }
@@ -23,17 +23,17 @@ public class ImageDetailQuery extends ImageDetailManager {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getImagePath();
     }
-    public String getTimestamp(String imageID) {
+    public static String getTimestamp(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getTimestamp();
     }
 
-    public void incrementLikes(String imageID){
+    public static void incrementLikes(String imageID){
         ImageDetails imageDetails = imagesMap.get(imageID);
         imageDetails.incrementLikes();
     }
     
-    public int getLikes(String imageID) {
+    public static int getLikes(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getLikes();
     }

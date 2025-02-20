@@ -82,7 +82,7 @@ public class ImageDetailManager extends DataManager {
     }
 
     @Override
-    void updateFile() {
+    public void updateFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) { 
             for (Map.Entry<String, ImageDetails> entry : imagesMap.entrySet()) {
                 writer.write(entry.getValue().toString()); 

@@ -7,5 +7,4 @@ public class NotificationQuery extends NotificationManager {
         return getNotificationMessagesInternal();
     }
 
-
 }

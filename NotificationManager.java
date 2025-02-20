@@ -88,7 +88,7 @@ public class NotificationManager extends DataManager {
         return timeElapsed.toString();
     }
 
-    public void updateNotificationToCache(String notification){
+    public static void updateNotificationToCache(String notification){
         notificationMessages.add(notification);
     }
     protected static List<String> getNotificationMessagesInternal(){

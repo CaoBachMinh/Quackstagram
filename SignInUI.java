@@ -19,7 +19,8 @@ public class SignInUI extends UIManager {
 
     DataManager credentialsManager;
     // DataManager followingManager;
-    DataManager imageDetailManager; 
+    DataManager imageDetailManager;
+
     
 
 
@@ -39,6 +40,7 @@ public class SignInUI extends UIManager {
 
         imageDetailManager = new ImageDetailManager();
         imageDetailManager.readFile();
+
     }
 
     private void initializeUI() {

@@ -27,8 +27,12 @@ public class QuakstagramHomeUI extends UIManager {
     private JPanel cardPanel;
     private JPanel homePanel;
     private JPanel imageViewPanel;
+    private NotificationManager notificationManager;
 
     public QuakstagramHomeUI() {
+        notificationManager = new NotificationManager();
+        notificationManager.readFile();
+
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -92,11 +96,14 @@ public class QuakstagramHomeUI extends UIManager {
         }
     }
 
-    private void handleLikeAction(String imageId, JLabel likesLabel) {
-            ImageDetailQuery likeAction = new ImageDetailQuery();
-            likeAction.incrementLikes(imageId);
-            likesLabel.setText("Likes: " + likeAction.getLikes(imageId));
-            likeAction.updateFile();
+    private void handleLikeAction(ContentBox post) {
+        ImageDetailQuery.incrementLikes(post.getImageId());
+        post.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(post.getImageId()));
+        String currentUser = getCurrentUser();
+        String imageOwner = ImageDetailQuery.getUsername(post.getImageId());
+        String timestamp = ImageDetailQuery.getTimestamp(post.getImageId());
+        String notification = String.format("%s;%s;%s;%s\n",imageOwner,currentUser,post.getImageId(),timestamp);
+        NotificationQuery.updateNotificationToCache(notification);
     }
 
     private void setUpLikeButtonEvent(ContentBox post){
@@ -104,7 +111,7 @@ public class QuakstagramHomeUI extends UIManager {
         likeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLikeAction(post.getImageId(), post.getLikesLabel());
+                handleLikeAction(post);
             }
         });
     }
@@ -136,7 +143,6 @@ public class QuakstagramHomeUI extends UIManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return convertToArray(data);
     }
 
@@ -150,16 +156,8 @@ public class QuakstagramHomeUI extends UIManager {
     }
 
     private String getCurrentUser(){
-        String currentUser = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                currentUser = line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return currentUser;
+        User currentUser = LoggedinUser.getInstance();
+        return currentUser.getUsername();
     }
 
     private String getFollowedUsers(String currentUser){
@@ -168,7 +166,7 @@ public class QuakstagramHomeUI extends UIManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith(currentUser + ":")) {
-                    followedUsers = line.split(":")[1].trim();
+                    followedUsers = line.split( ":")[1].trim();
                     break;
                 }
             }
@@ -177,25 +175,16 @@ public class QuakstagramHomeUI extends UIManager {
         }
         return followedUsers;
     }
-
-
-
-    private void displayImage(String[] postData) {
+    
+    private void displayImage(ContentBox postData) {
         imageViewPanel.removeAll(); // Clear previous content
-
-       
-        String imageId = new File(postData[3]).getName().split("\\.")[0];
-        JLabel likesLabel = new JLabel(postData[2]); // Update this line
-
-
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
         fullSizeImageLabel.setHorizontalAlignment(JLabel.CENTER);
-      
 
          try {
-                BufferedImage originalImage = ImageIO.read(new File(postData[3]));
+                BufferedImage originalImage = ImageIO.read(new File(postData.getPath()));
                 BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), WIDTH-20), Math.min(originalImage.getHeight(), HEIGHT-40));
                 ImageIcon imageIcon = new ImageIcon(croppedImage);
                 fullSizeImageLabel.setIcon(imageIcon);
@@ -207,7 +196,7 @@ public class QuakstagramHomeUI extends UIManager {
         //User Info 
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel,BoxLayout.Y_AXIS));
-        JLabel userName = new JLabel(postData[0]);
+        JLabel userName = postData.getNameLabel();
         userName.setFont(new Font("Arial", Font.BOLD, 18));
         userPanel.add(userName);//User Name
 
@@ -219,16 +208,16 @@ public class QuakstagramHomeUI extends UIManager {
             likeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                   handleLikeAction(imageId, likesLabel); // Update this line
-                   refreshDisplayImage(postData, imageId); // Refresh the view
+                   handleLikeAction(postData); // Update this line
+                   refreshDisplayImage(postData); // Refresh the view
                 }
             });
        
         // Information panel at the bottom
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(new JLabel(postData[1])); // Description
-        infoPanel.add(new JLabel(postData[2])); // Likes
+        infoPanel.add(postData.getDescriptionLabel()); // Description
+        infoPanel.add(postData.getLikesLabel()); // Likes
         infoPanel.add(likeButton);
 
         imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);
@@ -247,19 +236,19 @@ public class QuakstagramHomeUI extends UIManager {
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                displayImage(post.getPostData()); // Call a method to switch to the image view
+                displayImage(post); // Call a method to switch to the image view
             }
         });
     }
 
-    private void refreshDisplayImage(String[] postData, String imageId) {
+    private void refreshDisplayImage(ContentBox postData) {
         // Read updated likes count from image_details.txt
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.contains("ImageID: " + imageId)) {
+                if (line.contains("ImageID: " + postData.getImageId())) {
                     String likes = line.split(", ")[4].split(": ")[1];
-                    postData[2] = "Likes: " + likes;
+                    postData.setLikesLabel("Likes: " + likes);
                     break;
                 }
             }
