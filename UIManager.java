@@ -19,10 +19,10 @@ public abstract class UIManager extends JFrame{
     static final Color LIKE_BUTTON_COLOR = new Color(255, 90, 95); // Color for the like button
 
 
-    JPanel createHeaderPanel(){
+    JPanel createHeaderPanel(String headerTitle){
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
-        JLabel lblRegister = new JLabel("🐥 Quackstagram 🐥");
+        JLabel lblRegister = new JLabel(headerTitle);
         lblRegister.setFont(new Font("Arial", Font.BOLD, 16));
         lblRegister.setForeground(Color.WHITE); // Set the text color to white
         headerPanel.add(lblRegister);

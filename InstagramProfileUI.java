@@ -137,6 +137,8 @@ public class InstagramProfileUI extends UIManager {
     }
 
     @Override
+    JPanel createHeaderPanel(String headerTitle){return null;}
+    
     JPanel createHeaderPanel() {
         boolean isCurrentUser = false;
         String loggedInUsername = "";
