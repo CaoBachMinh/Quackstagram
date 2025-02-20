@@ -10,7 +10,7 @@ public  class CredentialsManager extends DataManager {
     //and will be erased after  user login successfully
     private static Map <String,String> userPassword = new HashMap<>(); 
 
-    private static final  String filePath = "data/credentials.txt"; 
+    private static final  String filePath = "data/credentials.txt";
     private static String username;
     private static String bio;
     private static String password ;
@@ -51,6 +51,9 @@ public  class CredentialsManager extends DataManager {
     }
   
     protected boolean verifyCredentialsInternal(String username, String password) {
+        if (!userPassword.containsKey(username)) {
+            return false;
+        }
         if(userPassword.get(username).equals(password)) {
             userPassword.clear();
             return true;
