@@ -16,7 +16,7 @@ public class NotificationsUI extends UIManager {
 
     
     private void initializeUI() {
-        JPanel headerPanel = createHeaderPanel();
+        JPanel headerPanel = createHeaderPanel(" Notifications 🐥");
         JPanel navigationPanel = createNavigationPanel();
         JPanel contentPanel = createNotificationContentPanel();
         JScrollPane scrollPane = createScrollPane(contentPanel);
