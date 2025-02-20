@@ -19,14 +19,20 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class QuakstagramHomeUI extends UIManager {
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JPanel homePanel;
     private JPanel imageViewPanel;
+    private NotificationManager notificationManager;
 
     public QuakstagramHomeUI() {
+        notificationManager = new NotificationManager();
+        notificationManager.readFile();
+
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -58,7 +64,6 @@ public class QuakstagramHomeUI extends UIManager {
 
 
     private void initializeUI() {
-    
         // Content Scroll Panel
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Vertical box layout
@@ -71,8 +76,6 @@ public class QuakstagramHomeUI extends UIManager {
          // Set up the home panel
          contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
          homePanel.add(scrollPane, BorderLayout.CENTER);
-       
-
     }
 
 
@@ -93,143 +96,95 @@ public class QuakstagramHomeUI extends UIManager {
         }
     }
 
-private void handleLikeAction(String imageId, JLabel likesLabel) {
-    Path detailsPath = Paths.get("img", "image_details.txt");
-    StringBuilder newContent = new StringBuilder();
-    boolean updated = false;
-    String currentUser = "";
-    String imageOwner = "";
-    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-    // Retrieve the current user from users.txt
-    try (BufferedReader userReader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = userReader.readLine();
-        if (line != null) {
-            currentUser = line.split(":")[0].trim();
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
+    private void handleLikeAction(ContentBox post) {
+        ImageDetailQuery.incrementLikes(post.getImageId());
+        post.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(post.getImageId()));
+        String currentUser = getCurrentUser();
+        String imageOwner = ImageDetailQuery.getUsername(post.getImageId());
+        String timestamp = ImageDetailQuery.getTimestamp(post.getImageId());
+        String notification = String.format("%s;%s;%s;%s\n",imageOwner,currentUser,post.getImageId(),timestamp);
+        NotificationQuery.updateNotificationToCache(notification);
     }
 
-    // Read and update image_details.txt
-    try (BufferedReader reader = Files.newBufferedReader(detailsPath)) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.contains("ImageID: " + imageId)) {
-                String[] parts = line.split(", ");
-                imageOwner = parts[1].split(": ")[1];
-                int likes = Integer.parseInt(parts[4].split(": ")[1]);
-                likes++; // Increment the likes count
-                parts[4] = "Likes: " + likes;
-                line = String.join(", ", parts);
-
-                // Update the UI
-                likesLabel.setText("Likes: " + likes);
-                updated = true;
+    private void setUpLikeButtonEvent(ContentBox post){
+        JButton likeButton = post.getLikeButton();
+        likeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLikeAction(post);
             }
-            newContent.append(line).append("\n");
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
+        });
     }
 
-    // Write updated likes back to image_details.txt
-    if (updated) {
-        try (BufferedWriter writer = Files.newBufferedWriter(detailsPath)) {
-            writer.write(newContent.toString());
+    private String[][] createSampleData() {
+        String currentUser = getCurrentUser();
+
+        String followedUsers = getFollowedUsers(currentUser);
+
+        return setUpData(followedUsers);
+    }
+
+    private String[][] setUpData(String followedUsers){
+        // Temporary structure to hold the data
+        ArrayList<ArrayList<String>> data = new ArrayList<>();
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] details = line.split(", ");
+                String imagePoster = details[1].split(": ")[1];
+                if (followedUsers.contains(imagePoster)) {
+                    String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
+                    String description = details[2].split(": ")[1];
+                    String likes = "Likes: " + details[4].split(": ")[1];
+
+                    data.add(new ArrayList<>(Arrays.asList(imagePoster, description, likes, imagePath)));
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return convertToArray(data);
+    }
 
-        // Record the like in notifications.txt
-        String notification = String.format("%s; %s; %s; %s\n", imageOwner, currentUser, imageId, timestamp);
-        try (BufferedWriter notificationWriter = Files.newBufferedWriter(Paths.get("data", "notifications.txt"), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            notificationWriter.write(notification);
+    private String[][] convertToArray(ArrayList<ArrayList<String>> data){
+        String[][] result = new String[data.size()][];
+        int size = data.get(0).size();
+        for (int i = 0; i < data.size(); i++) {
+            result[i] = data.get(i).toArray(new String[size]);
+        }
+        return result;
+    }
+
+    private String getCurrentUser(){
+        User currentUser = LoggedinUser.getInstance();
+        return currentUser.getUsername();
+    }
+
+    private String getFollowedUsers(String currentUser){
+        String followedUsers = "";
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith(currentUser + ":")) {
+                    followedUsers = line.split( ":")[1].trim();
+                    break;
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return followedUsers;
     }
-}
-
-private void setUpLikeButtonEvent(ContentBox post){
-    JButton likeButton = post.getLikeButton();
-    likeButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            handleLikeAction(post.getImageId(), post.getLikesLabel());
-        }
-    });
-}
     
-private String[][] createSampleData() {
-    String currentUser = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = reader.readLine();
-        if (line != null) {
-            currentUser = line.split(":")[0].trim();
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    String followedUsers = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith(currentUser + ":")) {
-                followedUsers = line.split(":")[1].trim();
-                break;
-            }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    // Temporary structure to hold the data
-    String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
-    int count = 0;
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null && count < tempData.length) {
-            String[] details = line.split(", ");
-            String imagePoster = details[1].split(": ")[1];
-            if (followedUsers.contains(imagePoster)) {
-                String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
-                String description = details[2].split(": ")[1];
-                String likes = "Likes: " + details[4].split(": ")[1];
-
-                tempData[count++] = new String[]{imagePoster, description, likes, imagePath};
-            }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    // Transfer the data to the final array
-    String[][] sampleData = new String[count][];
-    System.arraycopy(tempData, 0, sampleData, 0, count);
-
-    return sampleData;
-}
-
-
-
-    private void displayImage(String[] postData) {
+    private void displayImage(ContentBox postData) {
         imageViewPanel.removeAll(); // Clear previous content
-
-       
-        String imageId = new File(postData[3]).getName().split("\\.")[0];
-        JLabel likesLabel = new JLabel(postData[2]); // Update this line
-
-
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
         fullSizeImageLabel.setHorizontalAlignment(JLabel.CENTER);
-      
 
          try {
-                BufferedImage originalImage = ImageIO.read(new File(postData[3]));
+                BufferedImage originalImage = ImageIO.read(new File(postData.getPath()));
                 BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), WIDTH-20), Math.min(originalImage.getHeight(), HEIGHT-40));
                 ImageIcon imageIcon = new ImageIcon(croppedImage);
                 fullSizeImageLabel.setIcon(imageIcon);
@@ -241,7 +196,7 @@ private String[][] createSampleData() {
         //User Info 
         JPanel userPanel = new JPanel();
         userPanel.setLayout(new BoxLayout(userPanel,BoxLayout.Y_AXIS));
-        JLabel userName = new JLabel(postData[0]);
+        JLabel userName = postData.getNameLabel();
         userName.setFont(new Font("Arial", Font.BOLD, 18));
         userPanel.add(userName);//User Name
 
@@ -253,16 +208,16 @@ private String[][] createSampleData() {
             likeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                   handleLikeAction(imageId, likesLabel); // Update this line
-                   refreshDisplayImage(postData, imageId); // Refresh the view
+                   handleLikeAction(postData); // Update this line
+                   refreshDisplayImage(postData); // Refresh the view
                 }
             });
        
         // Information panel at the bottom
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(new JLabel(postData[1])); // Description
-        infoPanel.add(new JLabel(postData[2])); // Likes
+        infoPanel.add(postData.getDescriptionLabel()); // Description
+        infoPanel.add(postData.getLikesLabel()); // Likes
         infoPanel.add(likeButton);
 
         imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);
@@ -281,19 +236,19 @@ private String[][] createSampleData() {
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                displayImage(post.getPostData()); // Call a method to switch to the image view
+                displayImage(post); // Call a method to switch to the image view
             }
         });
     }
 
-    private void refreshDisplayImage(String[] postData, String imageId) {
+    private void refreshDisplayImage(ContentBox postData) {
         // Read updated likes count from image_details.txt
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.contains("ImageID: " + imageId)) {
+                if (line.contains("ImageID: " + postData.getImageId())) {
                     String likes = line.split(", ")[4].split(": ")[1];
-                    postData[2] = "Likes: " + likes;
+                    postData.setLikesLabel("Likes: " + likes);
                     break;
                 }
             }

@@ -47,7 +47,7 @@ public class ContentBox {
         likeButton.setBorderPainted(false); // Remove border
     }
 
-    private void cropImage(int imageWidth, int imageHeight) {
+    public void cropImage(int imageWidth, int imageHeight) {
         try {
             BufferedImage originalImage = ImageIO.read(new File(this.postData[3]));
             int minWidth = Math.min(originalImage.getWidth(), imageWidth);
@@ -88,6 +88,22 @@ public class ContentBox {
 
     public String[] getPostData() {
         return this.postData;
+    }
+
+    public JLabel getNameLabel() {
+        return this.nameLabel;
+    }
+
+    public JLabel getDescriptionLabel() {
+        return this.descriptionLabel;
+    }
+
+    public void setLikesLabel(String likesLabel) {
+        this.likesLabel.setText(likesLabel);
+    }
+
+    public String getPath(){
+        return this.postData[3];
     }
 
 
