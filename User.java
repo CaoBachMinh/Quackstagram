@@ -36,9 +36,13 @@ class User {
     public String getUsername() { return username; }
     public String getBio() { return bio; }
     public void setBio(String bio) {this.bio = bio; }
-    public int getPostsCount() { return postsCount; }
+    public int getPostsCount() { 
+        ImageDetailQuery imageDetailQuery = new ImageDetailQuery();
+        return imageDetailQuery.getImageUserCount(this);
+    }
     public int getFollowersCount() { return followersCount; }
     public int getFollowingCount() { return followingCount; }
+
     public List<Picture> getPictures() { return pictures; }
 
     // Setter methods for followers and following counts
