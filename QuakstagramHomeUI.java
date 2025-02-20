@@ -55,7 +55,7 @@ public class QuakstagramHomeUI extends UIManager {
         
         // Header Panel (reuse from InstagramProfileUI or customize for home page)
         // Header with the Register label
-        JPanel headerPanel =  createHeaderPanel();
+        JPanel headerPanel =  createHeaderPanel("🐥 Quackstagram 🐥");
         add(headerPanel, BorderLayout.NORTH);
 
         // Navigation Bar

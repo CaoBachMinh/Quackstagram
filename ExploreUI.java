@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +32,7 @@ public class ExploreUI extends UIManager {
         getContentPane().removeAll(); // Clear existing components
         setLayout(new BorderLayout()); // Reset the layout manager
 
-        JPanel headerPanel = createHeaderPanel(); // Method from your InstagramProfileUI class
+        JPanel headerPanel = createHeaderPanel(" Explore 🐥"); // Method from your InstagramProfileUI class
         JPanel navigationPanel = createNavigationPanel(); // Method from your InstagramProfileUI class
         JPanel mainContentPanel = createMainContentPanel();
 
@@ -93,7 +92,7 @@ public class ExploreUI extends UIManager {
         setLayout(new BorderLayout());
 
         // Add the header and navigation panels back
-        add(createHeaderPanel(), BorderLayout.NORTH);
+        add(createHeaderPanel(" Explore 🐥"), BorderLayout.NORTH);
         add(createNavigationPanel(), BorderLayout.SOUTH);
 
         JPanel imageViewerPanel = new JPanel(new BorderLayout());
@@ -165,7 +164,7 @@ public class ExploreUI extends UIManager {
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Re-add the header and navigation panels
-        add(createHeaderPanel(), BorderLayout.NORTH);
+        add(createHeaderPanel(" Explore 🐥"), BorderLayout.NORTH);
         add(createNavigationPanel(), BorderLayout.SOUTH);
 
         // Panel for the back button
@@ -179,7 +178,7 @@ public class ExploreUI extends UIManager {
 
         backButton.addActionListener(e -> {
             getContentPane().removeAll();
-            add(createHeaderPanel(), BorderLayout.NORTH);
+            add(createHeaderPanel(" Explore 🐥"), BorderLayout.NORTH);
             add(createMainContentPanel(), BorderLayout.CENTER);
             add(createNavigationPanel(), BorderLayout.SOUTH);
             revalidate();
