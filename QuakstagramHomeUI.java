@@ -132,11 +132,11 @@ public class QuakstagramHomeUI extends UIManager {
         return currentUser.getUsername();
     }
     
-    private void displayImage(ContentBox postData) {
+    private void displayImage(ImageDetails imageDetails) {
         imageViewPanel.removeAll(); // Clear previous content
 
         ContentBox currentPost = new ContentBox(
-                postData.getImageDetails(),
+                imageDetails,
                 IMAGE_WIDTH,
                 IMAGE_HEIGHT,
                 LIKE_BUTTON_COLOR
@@ -180,7 +180,7 @@ public class QuakstagramHomeUI extends UIManager {
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                displayImage(postData); // Call a method to switch to the image view
+                displayImage(postData.getImageDetails()); // Call a method to switch to the image view
             }
         });
     }
@@ -189,7 +189,7 @@ public class QuakstagramHomeUI extends UIManager {
         // update display
         postData.setLikesLabel("Likes: " + ImageDetailQuery.getLikes(postData.getImageId()));
         // Call displayImage with updated postData
-        displayImage(postData);
+        displayImage(postData.getImageDetails());
     }
 
 
