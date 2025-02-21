@@ -1,3 +1,5 @@
+package src;
+
 public class ImageDetails {
     private String imageID;
     private User user;

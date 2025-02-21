@@ -1,10 +1,11 @@
+package src;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 
 public class ContentBox {
@@ -24,6 +25,8 @@ public class ContentBox {
         this.setUpDescription();
         this.setUpLikeButton(likeButtonColor);
     }
+
+    public ContentBox(){}
 
     private void setUpItemPanel() {
         this.itemPanel = new JPanel();
@@ -146,6 +149,4 @@ public class ContentBox {
     public String getPath(){
         return this.imageDetails.getImagePath();
     }
-
-
 }

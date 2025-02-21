@@ -1,8 +1,6 @@
-import javax.swing.JTextField;
+package src;
+
 import javax.swing.SwingUtilities;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.Color;
 import java.awt.Window;
 import java.awt.KeyboardFocusManager;
 
