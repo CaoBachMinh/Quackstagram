@@ -35,6 +35,19 @@ public class SearchManager {
     }
 
 
+    protected Set<String> getKeywordToSearch(){
+        return keywordSet;
+    }
+
+    protected Set<String> getHashtagToSearch(){
+        return hashtagSet;
+    }
+
+    protected String usernameToSearch(){
+        return usernameToSearch;
+    } 
+
+
     private void classifyAndMergeImages(){
         if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
             imagesToDisplay = null;
@@ -56,6 +69,7 @@ public class SearchManager {
         if (imagesFromHashtagSearch != null) {
             imagesToDisplay.addAll(Arrays.asList(imagesFromHashtagSearch));
         }
+
     }
 
     private class InvalidInputException extends RuntimeException {
@@ -102,7 +116,7 @@ public class SearchManager {
                 hashtagSet = new HashSet<>();
         
                 if (words.length == 1) {
-                    usernameToSearch = cleanWord(words[0]); // Clean and set the username
+                    usernameToSearch = cleanWord(words[0]); 
                 }
 
                 for (String word : words) {
@@ -121,9 +135,11 @@ public class SearchManager {
         String cleanWord(String word) {
                 return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase();
             }
+
         String cleanHashtag(String word) {
                 return word.replaceAll("[^#a-zA-Z0-9]", "");
             }
+
         boolean isSkipWord(String word) {
                 return word.isEmpty() || word.matches("\\.+") || word.matches("_+");
             }
