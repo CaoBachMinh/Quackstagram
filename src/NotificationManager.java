@@ -58,6 +58,10 @@ public class NotificationManager extends DataManager {
         if (lastWrittenIndex >= notificationMessages.size() - 1) {
             return; 
         }
+
+        if(notificationMessages==null){
+            return;
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) {     
             boolean isFirstWrite = true;
             for (int i = lastWrittenIndex + 1; i < notificationMessages.size(); i++) {
