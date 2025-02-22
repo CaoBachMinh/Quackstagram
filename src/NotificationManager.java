@@ -58,10 +58,17 @@ public class NotificationManager extends DataManager {
         if (lastWrittenIndex >= notificationMessages.size() - 1) {
             return; 
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) { 
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) {     
+            boolean isFirstWrite = true;
             for (int i = lastWrittenIndex + 1; i < notificationMessages.size(); i++) {
-                writer.write(notificationMessages.get(i));
-                writer.newLine();
+                if(isFirstWrite){
+                    writer.write("\n");
+                    isFirstWrite=false;
+                }
+                String message = notificationMessages.get(i);
+                if (!message.isEmpty()) { // Skip empty messages
+                    writer.write(message);
+                }
             }
             lastWrittenIndex = notificationMessages.size() - 1;
         } catch (IOException e) {

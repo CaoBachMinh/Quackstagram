@@ -1,6 +1,8 @@
 package src;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 public abstract class UIManager extends JFrame{
@@ -37,5 +39,21 @@ public abstract class UIManager extends JFrame{
         return navigationPanel.createNavigationPanel();
     }
 
+
+    void setCloseOperation(){
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); 
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                setVisible(false);
+                System.out.println("Writing files...");
+                DataManager imageDetailManager = new ImageDetailManager();
+                imageDetailManager.updateFile();
+                DataManager notiDataManager = new NotificationManager();
+                notiDataManager.updateFile();
+                System.exit(0);
+            }
+        });
+    }
 
 }       
