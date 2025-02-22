@@ -1,5 +1,6 @@
 package src;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.awt.event.MouseAdapter;
@@ -9,6 +10,19 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class QuakstagramHomeUI extends UIManager {
@@ -25,7 +39,7 @@ public class QuakstagramHomeUI extends UIManager {
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setCloseOperation();
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -100,7 +114,7 @@ public class QuakstagramHomeUI extends UIManager {
     private void updateNotification(ContentBox post) {
         String currentUser = getCurrentUser();
         String imageOwner = ImageDetailQuery.getUsername(post.getImageId());
-        String timestamp = ImageDetailQuery.getTimestamp(post.getImageId());
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String notification = String.format("%s;%s;%s;%s\n",imageOwner,currentUser,post.getImageId(),timestamp);
         NotificationQuery.updateNotificationToCache(notification);
     }

@@ -1,10 +1,14 @@
 package src;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ImageDetails {
     private String imageID;
     private User user;
     private String imagePath;
     private String description;
+    private List<String> hashtagList;
     private String timestampString;
     private int likes;
 
@@ -15,6 +19,7 @@ public class ImageDetails {
         this.imagePath= imagePath;
         this.timestampString = timestampString;
         this.likes = likes;
+        this.hashtagList = new ArrayList<>();
     }
     public String getUserName(){
         return user.getUsername();
@@ -24,6 +29,13 @@ public class ImageDetails {
     }
     public String getDescription(){
         return description;
+    }
+    public void addHashtag(String hashtag){
+        hashtagList.add(hashtag);
+    }
+
+    public List<String> getHashtagList(){
+        return hashtagList;
     }
     public User getUser(){
         return user;

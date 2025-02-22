@@ -89,13 +89,13 @@ public class InstagramProfileUI extends UIManager {
         currentUser.setBio(bio);
         currentUser.setFollowersCount(followersCount);
         currentUser.setFollowingCount(followingCount);
-        currentUser.setPostCount(imageCount);
+        // currentUser.setPostCount(imageCount);
         System.out.println(currentUser.getPostsCount());
 
         setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setCloseOperation();
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel();       // Initialize header panel
@@ -110,7 +110,7 @@ public class InstagramProfileUI extends UIManager {
         setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setCloseOperation();
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel();       // Initialize header panel
