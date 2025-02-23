@@ -66,7 +66,7 @@ public class ImageDetailManager extends DataManager {
     private void processHashtagBio (ImageDetails imageDetails){
         String bio = imageDetails.getDescription();
         String[] words = bio.split("\\s+");
-        String article = "a, an, the, what, where, who, when";
+        String article = "a, an, the, what, where, who, when, whom";
         for (String word : words) {
             String cleanedWord = word.replaceAll("[\\p{Punct}&&[^#]]", "");
             if (cleanedWord.isEmpty()) continue;
