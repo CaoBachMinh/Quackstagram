@@ -1,24 +1,30 @@
 package src;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SearchManager {
     
     private String textToSearch;
-    private List<String> keywordSet;
-    private Set<String> hashtagSet;
-    private String usernameToSearch;
-    private List<File> imagesToDisplay;
+    private static Set<String> keywordSet;
+    private static Set<String> hashtagSet;
+    private static String usernameToSearch;
+    private Set<File> imagesToDisplay;
     private Set<String> usernameToDisplay;
 
-    
+
     public SearchManager(String textToSearch){
         this.textToSearch = textToSearch;
     }
 
-    public  File[] getImageToDisplay(){
-        return imagesToDisplay.toArray(new File[imagesToDisplay.size()]);
+    protected  SearchManager(){ //default constructor for children class
+        this.textToSearch = null;
+    }
+
+
+    public  Set<File> getImageToDisplay(){
+        return imagesToDisplay;
     }
 
     public  Set<String> getUserToDisplay(){
@@ -28,12 +34,13 @@ public class SearchManager {
     public void processSearch(){
         TextHandler textHandler = new TextHandler(textToSearch);
         textHandler.processText();
-        this.classifyAndMergeImages();
-        //this.usernameToDisplay = //Add Method search Username của Long ở đây
+
+        // this.classifyAndMergeImages();
+        // this.usernameToDisplay = //Add Method search Username của Long ở đây
     }
 
 
-    protected List<String> getKeywordToSearch(){
+    protected Set<String> getKeywordToSearch(){
         return keywordSet;
     }
 
@@ -42,53 +49,35 @@ public class SearchManager {
     }
 
     protected String usernameToSearch(){
-        return usernameToSearch;
+        return  usernameToSearch;
     } 
 
 
     private void classifyAndMergeImages(){
-        File[] imagesFromPostSearch = null;
         if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
-            imagesToDisplay = null;
+            imagesToDisplay = null; // Or set as empty? 
         }
-        else if(!keywordSet.isEmpty()) {
-            imagesFromPostSearch = getImagesToDisplayByCaption();
-        }
+        // else if(!keywordSet.isEmpty()) {
+        //     Set<File> imagesFromPostSearch = //implement Post search method
+        // }
         else if(!hashtagSet.isEmpty()) {
-            //File[] imagesFromHashtagSearch = //implement Hashtag search method
+            SearchByHashtag searchByHashtag = new SearchByHashtag();
+            Set<File> imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
         }
-        mergeImageToDisplay(imagesFromPostSearch,null);
+        // mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
     }
 
-    private File[] getImagesToDisplayByCaption(){
-        List<File> imageFiles = new ArrayList<>();
-        Set<String> uniqueImageId = new HashSet<>();
+    private void mergeImageToDisplay(Set<File> imagesFromPostSearch, Set<File> imagesFromHashtagSearch) {
+        imagesToDisplay = new HashSet<>();
 
-        for (int i=0; i<keywordSet.size(); i++){
-            String keyword = keywordSet.get(i);
-            List<ImageDetails> imageDetailsList = ImageDetailQuery.getImageListByKeyword(keyword);
-            if (imageDetailsList.isEmpty()){continue;}
-            for (ImageDetails imageDetails : imageDetailsList){
-                String imageId = imageDetails.getImageId();
-                if (uniqueImageId.contains(imageId)){continue;}
-
-                uniqueImageId.add(imageId);
-                File imageFile = new File(imageDetails.getImagePath());
-                imageFiles.add(imageFile);
-            }
+        for (File file : imagesFromPostSearch){
+            if (file != null) 
+                imagesToDisplay.add(file);
         }
-        return imageFiles.toArray(new File[imageFiles.size()]);
-    }
-
-    private void mergeImageToDisplay(File[] imagesFromPostSearch, File[] imagesFromHashtagSearch) {
-        imagesToDisplay = new ArrayList<>();
-        if (imagesFromPostSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromPostSearch));
+        for (File file : imagesFromHashtagSearch){
+            if (file != null) 
+                imagesToDisplay.add(file);
         }
-        if (imagesFromHashtagSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromHashtagSearch));
-        }
-
     }
 
     private class InvalidInputException extends RuntimeException {
@@ -126,15 +115,17 @@ public class SearchManager {
                 // Normalize multiple spaces between words
                 cleanedText = cleanedText.replaceAll("\\s+", " ");
             
+
+                System.out.println(cleanedText);
                 return cleanedText;
             }
 
         void classifyText (String cleanedText){
                 String[] words = cleanedText.split("\\s+");
-                keywordSet = new ArrayList<>();
+                keywordSet = new HashSet<>();
                 hashtagSet = new HashSet<>();
         
-                if (words.length == 1) {
+                if (words.length == 1 && !words[0].startsWith("#") ) {
                     usernameToSearch = cleanWord(words[0]); 
                 }
 
@@ -152,11 +143,11 @@ public class SearchManager {
 
             }
         String cleanWord(String word) {
-                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase();
+                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase().trim();
             }
 
         String cleanHashtag(String word) {
-                return word.replaceAll("[^#a-zA-Z0-9]", "");
+                return word.replaceAll("[^#a-zA-Z0-9]", "").trim();
             }
 
         boolean isSkipWord(String word) {
