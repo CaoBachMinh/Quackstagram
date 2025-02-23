@@ -13,7 +13,7 @@ public class ExploreUI extends UIManager {
         setTitle("Explore");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setCloseOperation();
         setLayout(new BorderLayout());
         initializeUI();
     }

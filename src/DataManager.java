@@ -9,14 +9,16 @@ public  abstract class  DataManager {
     abstract void readFile();
     abstract void updateFile();
     
-    protected void updateUserMap (String user,User userDetails){
+    protected static void updateUserMap (String user,User userDetails){
         userMap.put(user,userDetails);
     }
 
-    protected User getUserDetails(String username) {
+    protected static User getUserDetails(String username) {
         return userMap.get(username);
     }
 }
+
+
 
 
 
