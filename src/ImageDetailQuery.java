@@ -26,7 +26,7 @@ public class ImageDetailQuery extends ImageDetailManager {
         try {
             List<ImageDetails> imageList = keywordImageDetails.get(keyword);
             if (imageList == null) {
-                throw new NullPointerException("Keyword not found");
+                throw new NullPointerException("Keyword: "+ keyword + " not found");
             }
             return imageList;
         }catch (NullPointerException e) {
@@ -41,7 +41,7 @@ public class ImageDetailQuery extends ImageDetailManager {
                 throw new InvalidHashtagException ("Hashtag must start with '#'");
             List<ImageDetails> imageList = hashtagImageDetails.get(hashtag);
             if (imageList == null) 
-                throw new InvalidHashtagException("Hashtag not found");
+                throw new InvalidHashtagException("Hashtag: "+ hashtag + " not found");
 
             return imageList;
         }catch (InvalidHashtagException e) {
