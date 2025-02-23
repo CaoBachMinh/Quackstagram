@@ -18,7 +18,6 @@ public class ExploreUI extends UIManager {
         initializeUI();
     }
 
-    
     private void initializeUI() {
         getContentPane().removeAll(); // Clear existing components
         setLayout(new BorderLayout()); // Reset the layout manager
