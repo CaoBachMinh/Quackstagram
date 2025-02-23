@@ -1,13 +1,17 @@
 package src;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
 public class ExploreUI extends UIManager {
-
+    private JPanel mainContentPanel;
 
     public ExploreUI() {
         setTitle("Explore");
@@ -18,14 +22,14 @@ public class ExploreUI extends UIManager {
         initializeUI();
     }
 
-    
     private void initializeUI() {
         getContentPane().removeAll(); // Clear existing components
         setLayout(new BorderLayout()); // Reset the layout manager
 
         JPanel headerPanel = createHeaderPanel(" Explore 🐥"); // Method from your InstagramProfileUI class
         JPanel navigationPanel = createNavigationPanel(); // Method from your InstagramProfileUI class
-        JPanel mainContentPanel = createMainContentPanel();
+        mainContentPanel = new JPanel(new BorderLayout());
+        createMainContentPanel(null);
 
         // Add panels to the frame
         add(headerPanel, BorderLayout.NORTH);
@@ -36,38 +40,54 @@ public class ExploreUI extends UIManager {
         repaint();
     }
     
-    private JPanel createMainContentPanel() {
+    private JPanel createMainContentPanel(String searchText) {
+        mainContentPanel.removeAll();
         // Create the main content panel with search and image grid
         // Search bar at the top
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        JTextField searchField = new JTextField(" Search Users");
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // Limit the height
+        setUpSearchPanel();
 
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
-
         // Load images from the uploaded folder
-        loadImageToPanel(imageGridPanel);
+        loadImageToPanel(imageGridPanel,searchText);
 
         // Set up scroll
-        JScrollPane scrollPane = new JScrollPane(imageGridPanel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        setUpScrollPanel(imageGridPanel);
 
         // Main content panel that holds both the search bar and the image grid
-        JPanel mainContentPanel = new JPanel();
         mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
-        mainContentPanel.add(searchPanel);
-        mainContentPanel.add(scrollPane); // This will stretch to take up remaining space
+        mainContentPanel.revalidate();
+        mainContentPanel.repaint();
         return mainContentPanel;
     }
 
-    private void loadImageToPanel(JPanel imageGridPanel) {
+    private void setUpSearchPanel() {
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        JTextField searchField = new JTextField(" Search Users");
+        setSearchAction(searchField);
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // Limit the height
+        mainContentPanel.add(searchPanel);
+    }
+
+    private void setUpScrollPanel(JPanel imageGridPanel) {
+        JScrollPane scrollPane = new JScrollPane(imageGridPanel);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mainContentPanel.add(scrollPane); // This will stretch to take up remaining space
+    }
+
+    private void loadImageToPanel(JPanel imageGridPanel,String searchText) {
         File imageDir = new File("img/uploaded");
         if (imageDir.exists() && imageDir.isDirectory()) {
             File[] imageFiles = imageDir.listFiles((dir, name) -> name.matches(".*\\.(png|jpg|jpeg)"));
             if (imageFiles == null) {return;}
+            if (searchText != null) {
+                SearchManager searchManager = new SearchManager(searchText);
+                searchManager.processSearch();
+                imageFiles = searchManager.getImageToDisplay();
+                if (isPostDataValid(imageFiles,imageGridPanel)){return;}
+            }
             for (File imageFile : imageFiles) {
                 Image image = createImage(imageFile);
                 ImageIcon imageIcon = new ImageIcon(image);
@@ -76,6 +96,30 @@ public class ExploreUI extends UIManager {
                 imageGridPanel.add(imageLabel);
             }
         }
+    }
+
+    private boolean isPostDataValid(File[] imageFiles, JPanel imageGridPanel) {
+        if (imageFiles.length != 0) {
+            return false;
+        }
+        JPanel noPostPanel = new JPanel(new BorderLayout());
+        JLabel noPost = new JLabel("No Post Found!");
+        noPost.setFont(new Font("Arial", Font.BOLD, 16));
+        noPostPanel.add(noPost, BorderLayout.CENTER);
+        imageGridPanel.add(noPostPanel);
+        return true;
+    }
+
+    private void setSearchAction(JTextField searchField) {
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String inputText = searchField.getText();
+                inputText = (inputText.equals(" Search Users"))? null : inputText;
+                System.out.println("Searching for: " + inputText + "...");
+                createMainContentPanel(inputText);
+            }
+        });
     }
 
     private void displayImageClickEvent(JLabel imageLabel, String imagePath) {
@@ -127,7 +171,7 @@ public class ExploreUI extends UIManager {
         backButton.addActionListener(e -> {
             getContentPane().removeAll();
             add(createHeaderPanel(" Explore 🐥"), BorderLayout.NORTH);
-            add(createMainContentPanel(), BorderLayout.CENTER);
+            add(createMainContentPanel(null), BorderLayout.CENTER);
             add(createNavigationPanel(), BorderLayout.SOUTH);
             revalidate();
             repaint();

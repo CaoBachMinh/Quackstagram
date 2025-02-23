@@ -75,7 +75,6 @@ public class QuakstagramHomeUI extends UIManager {
 
         List<ImageDetails> sampleData = ImageDetailQuery.getFollowerImageDetails();
 
-
         populateContentPanel(contentPanel, sampleData);
         add(scrollPane, BorderLayout.CENTER);
 
