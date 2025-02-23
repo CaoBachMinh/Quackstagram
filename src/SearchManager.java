@@ -1,16 +1,15 @@
 package src;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SearchManager {
     
     private String textToSearch;
-    private Set<String> keywordSet;
-    private Set<String> hashtagSet;
-    private String usernameToSearch;
+    private static Set<String> keywordSet;
+    private static Set<String> hashtagSet;
+    private static String usernameToSearch;
     private Set<File> imagesToDisplay;
     private Set<String> usernameToDisplay;
 
@@ -35,6 +34,7 @@ public class SearchManager {
     public void processSearch(){
         TextHandler textHandler = new TextHandler(textToSearch);
         textHandler.processText();
+
         // this.classifyAndMergeImages();
         // this.usernameToDisplay = //Add Method search Username của Long ở đây
     }
@@ -53,28 +53,31 @@ public class SearchManager {
     } 
 
 
-    // private void classifyAndMergeImages(){
-    //     if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
-    //         imagesToDisplay = null;
-    //     }
-    //     else if(!keywordSet.isEmpty()) {
-    //         File[] imagesFromPostSearch = //implement Post search method
-    //     }
-    //     else if(!hashtagSet.isEmpty()) {
-    //         File[] imagesFromHashtagSearch = //implement Hashtag search method
-    //     }
-    //     mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
-    // }
+    private void classifyAndMergeImages(){
+        if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
+            imagesToDisplay = null; // Or set as empty? 
+        }
+        // else if(!keywordSet.isEmpty()) {
+        //     Set<File> imagesFromPostSearch = //implement Post search method
+        // }
+        else if(!hashtagSet.isEmpty()) {
+            SearchByHashtag searchByHashtag = new SearchByHashtag();
+            Set<File> imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
+        }
+        // mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
+    }
 
-    private void mergeImageToDisplay(File[] imagesFromPostSearch, File[] imagesFromHashtagSearch) {
+    private void mergeImageToDisplay(Set<File> imagesFromPostSearch, Set<File> imagesFromHashtagSearch) {
         imagesToDisplay = new HashSet<>();
-        if (imagesFromPostSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromPostSearch));
-        }
-        if (imagesFromHashtagSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromHashtagSearch));
-        }
 
+        for (File file : imagesFromPostSearch){
+            if (file != null) 
+                imagesToDisplay.add(file);
+        }
+        for (File file : imagesFromHashtagSearch){
+            if (file != null) 
+                imagesToDisplay.add(file);
+        }
     }
 
     private class InvalidInputException extends RuntimeException {
