@@ -14,10 +14,15 @@ public class SearchManager {
     private Set<File> imagesToDisplay;
     private Set<String> usernameToDisplay;
 
-    
+
     public SearchManager(String textToSearch){
         this.textToSearch = textToSearch;
     }
+
+    protected  SearchManager(){ //default constructor for children class
+        this.textToSearch = null;
+    }
+
 
     public  Set<File> getImageToDisplay(){
         return imagesToDisplay;
@@ -30,8 +35,8 @@ public class SearchManager {
     public void processSearch(){
         TextHandler textHandler = new TextHandler(textToSearch);
         textHandler.processText();
-        this.classifyAndMergeImages();
-        this.usernameToDisplay = //Add Method search Username của Long ở đây
+        // this.classifyAndMergeImages();
+        // this.usernameToDisplay = //Add Method search Username của Long ở đây
     }
 
 
@@ -44,22 +49,22 @@ public class SearchManager {
     }
 
     protected String usernameToSearch(){
-        return usernameToSearch;
+        return  usernameToSearch;
     } 
 
 
-    private void classifyAndMergeImages(){
-        if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
-            imagesToDisplay = null;
-        }
-        else if(!keywordSet.isEmpty()) {
-            File[] imagesFromPostSearch = //implement Post search method
-        }
-        else if(!hashtagSet.isEmpty()) {
-            File[] imagesFromHashtagSearch = //implement Hashtag search method
-        }
-        mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
-    }
+    // private void classifyAndMergeImages(){
+    //     if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
+    //         imagesToDisplay = null;
+    //     }
+    //     else if(!keywordSet.isEmpty()) {
+    //         File[] imagesFromPostSearch = //implement Post search method
+    //     }
+    //     else if(!hashtagSet.isEmpty()) {
+    //         File[] imagesFromHashtagSearch = //implement Hashtag search method
+    //     }
+    //     mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
+    // }
 
     private void mergeImageToDisplay(File[] imagesFromPostSearch, File[] imagesFromHashtagSearch) {
         imagesToDisplay = new HashSet<>();
@@ -107,6 +112,8 @@ public class SearchManager {
                 // Normalize multiple spaces between words
                 cleanedText = cleanedText.replaceAll("\\s+", " ");
             
+
+                System.out.println(cleanedText);
                 return cleanedText;
             }
 
@@ -115,7 +122,7 @@ public class SearchManager {
                 keywordSet = new HashSet<>();
                 hashtagSet = new HashSet<>();
         
-                if (words.length == 1) {
+                if (words.length == 1 && !words[0].startsWith("#") ) {
                     usernameToSearch = cleanWord(words[0]); 
                 }
 
@@ -133,11 +140,11 @@ public class SearchManager {
 
             }
         String cleanWord(String word) {
-                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase();
+                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase().trim();
             }
 
         String cleanHashtag(String word) {
-                return word.replaceAll("[^#a-zA-Z0-9]", "");
+                return word.replaceAll("[^#a-zA-Z0-9]", "").trim();
             }
 
         boolean isSkipWord(String word) {
