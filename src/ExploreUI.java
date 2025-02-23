@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.*;
 
 public class ExploreUI extends UIManager {
+    private JPanel mainContentPanel;
 
     public ExploreUI() {
         setTitle("Explore");
@@ -28,7 +29,7 @@ public class ExploreUI extends UIManager {
 
         JPanel headerPanel = createHeaderPanel(" Explore 🐥"); // Method from your InstagramProfileUI class
         JPanel navigationPanel = createNavigationPanel(); // Method from your InstagramProfileUI class
-        JPanel mainContentPanel = createMainContentPanel(null);
+        mainContentPanel = createMainContentPanel(null);
 
         // Add panels to the frame
         add(headerPanel, BorderLayout.NORTH);
@@ -72,12 +73,12 @@ public class ExploreUI extends UIManager {
         File imageDir = new File("img/uploaded");
         if (imageDir.exists() && imageDir.isDirectory()) {
             File[] imageFiles = imageDir.listFiles((dir, name) -> name.matches(".*\\.(png|jpg|jpeg)"));
+            if (imageFiles == null) {return;}
             if (searchText != null) {
                 SearchManager searchManager = new SearchManager(searchText);
                 searchManager.processSearch();
                 imageFiles = searchManager.getImageToDisplay();
             }
-            if (imageFiles == null) {return;}
             for (File imageFile : imageFiles) {
                 Image image = createImage(imageFile);
                 ImageIcon imageIcon = new ImageIcon(image);

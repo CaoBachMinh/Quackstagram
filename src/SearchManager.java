@@ -23,8 +23,9 @@ public class SearchManager {
     }
 
 
-    public  Set<File> getImageToDisplay(){
-        return imagesToDisplay;
+    public  File[] getImageToDisplay(){
+        File[] imageData = imagesToDisplay.toArray(new File[imagesToDisplay.size()]);
+        return imageData;
     }
 
     public  Set<String> getUserToDisplay(){
@@ -35,7 +36,7 @@ public class SearchManager {
         TextHandler textHandler = new TextHandler(textToSearch);
         textHandler.processText();
 
-        // this.classifyAndMergeImages();
+        this.classifyAndMergeImages();
         // this.usernameToDisplay = //Add Method search Username của Long ở đây
     }
 
@@ -54,29 +55,36 @@ public class SearchManager {
 
 
     private void classifyAndMergeImages(){
+        Set<File> imagesFromPostSearch = null;
+        Set<File> imagesFromHashtagSearch = null;
         if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
             imagesToDisplay = null; // Or set as empty? 
         }
-        // else if(!keywordSet.isEmpty()) {
-        //     Set<File> imagesFromPostSearch = //implement Post search method
-        // }
+         else if(!keywordSet.isEmpty()) {
+             SearchByCaption searchByCaption = new SearchByCaption();
+             imagesFromPostSearch = searchByCaption.getImagesFromCaptionSearch();
+         }
         else if(!hashtagSet.isEmpty()) {
             SearchByHashtag searchByHashtag = new SearchByHashtag();
-            Set<File> imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
+            imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
         }
-        // mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
+        mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
     }
 
     private void mergeImageToDisplay(Set<File> imagesFromPostSearch, Set<File> imagesFromHashtagSearch) {
         imagesToDisplay = new HashSet<>();
 
-        for (File file : imagesFromPostSearch){
-            if (file != null) 
-                imagesToDisplay.add(file);
+        if (imagesFromPostSearch != null) {
+            for (File file : imagesFromPostSearch){
+                if (file != null)
+                    imagesToDisplay.add(file);
+            }
         }
-        for (File file : imagesFromHashtagSearch){
-            if (file != null) 
-                imagesToDisplay.add(file);
+        if (imagesFromHashtagSearch != null) {
+            for (File file : imagesFromHashtagSearch){
+                if (file != null)
+                    imagesToDisplay.add(file);
+            }
         }
     }
 
