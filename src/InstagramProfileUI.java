@@ -40,16 +40,28 @@ public class InstagramProfileUI extends UIManager {
         currentUser.setFollowingCount(followingCount);
         currentUser.setPostCount(imageCount);
         System.out.println(currentUser.getPostsCount()); //print
-
         setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setCloseOperation();
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel();       // Initialize header panel
         navigationPanel = createNavigationPanel();
 
+        initializeUI();
+    }
+
+      public InstagramProfileUI() {
+
+        setTitle("DACS Profile");
+        setSize(WIDTH, HEIGHT);
+        setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        setCloseOperation();
+        setLayout(new BorderLayout());
+        contentPanel = new JPanel();
+        headerPanel = createHeaderPanel();       // Initialize header panel
+        navigationPanel = createNavigationPanel();
         initializeUI();
     }
     

@@ -1,5 +1,4 @@
 package src;
-
 import java.util.*;
 
 // Represents a user on Quackstagram
@@ -13,9 +12,8 @@ class User {
     private List<Picture> pictures;
 
 
-    public User(String username, String bio) {
+    public User(String username) {
         this.username = username;
-        this.bio = bio;
         // this.password = password;
         this.pictures = new ArrayList<>();
         // Initialize counts to 0
@@ -24,9 +22,7 @@ class User {
         this.followingCount = 0;
     }
 
-    public User(String username){
-        this.username = username;
-    }
+
 
     // Add a picture to the user's profile
     public void addPicture(Picture picture) {
@@ -50,7 +46,6 @@ class User {
     // Setter methods for followers and following counts
     public void setFollowersCount(int followersCount) { this.followersCount = followersCount; }
    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
-   public void setPostCount(int postCount) { this.postsCount = postCount;}
     // Implement the toString method for saving user information
 @Override
 public String toString() {

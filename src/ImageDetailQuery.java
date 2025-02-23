@@ -1,5 +1,6 @@
 package src;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -7,19 +8,46 @@ import java.util.Set;
 
 public class ImageDetailQuery extends ImageDetailManager {
     public ImageDetailQuery (){}
-
     private static Map<String,ImageDetails> imagesMap = getImagesMap();
     private static Map<String,List<ImageDetails>> userToImageMap = getUserToImage();
     private static List<ImageDetails> imageDetailsList = getImagesDetailsList();
+    private static Map<String, List<ImageDetails>> keywordImageDetails = getKeywordImageDetails();
+    private static Map<String, List<ImageDetails>> hashtagImageDetails = getHashtagImageDetails();
 
-    //getter
-    public int getImageUserCount(String username) {
-        return userToImageMap.get(username).size();
+
+    private static class InvalidHashtagException extends RuntimeException {
+        public InvalidHashtagException(String message){
+            super(message);
+        }
     }
 
-    public int getImageUserCount(User user){
-        String username = user.getUsername();
-        return userToImageMap.get(username).size();
+
+    public static List<ImageDetails> getImageListByKeyword (String keyword){
+        try {
+            List<ImageDetails> imageList = keywordImageDetails.get(keyword);
+            if (imageList == null) {
+                throw new NullPointerException("Keyword not found");
+            }
+            return imageList;
+        }catch (NullPointerException e) {
+            System.err.println(e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    public static List<ImageDetails> getImageListByHashtag (String hashtag){
+        try {
+            if(!hashtag.startsWith("#"))
+                throw new InvalidHashtagException ("Hashtag must start with '#'");
+            List<ImageDetails> imageList = hashtagImageDetails.get(hashtag);
+            if (imageList == null) 
+                throw new InvalidHashtagException("Hashtag not found");
+
+            return imageList;
+        }catch (InvalidHashtagException e) {
+            System.err.println(e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     public static List<ImageDetails> getFollowerImageDetails(){
@@ -33,6 +61,25 @@ public class ImageDetailQuery extends ImageDetailManager {
             }
         }
         return imageDetailsOfFollowers;
+    }
+
+
+    public static  List<ImageDetails> getImageListByUsername(String username) {
+        return userToImageMap.get(username);
+    }
+
+    public static  List<ImageDetails> getImageListByUser(User user) {
+        String username = user.getUsername();
+        return userToImageMap.get(username);
+    }
+
+    public static int getImageUserCount(String username) {
+        return userToImageMap.get(username).size();
+    }
+
+    public static int getImageUserCount(User user){
+        String username = user.getUsername();
+        return userToImageMap.get(username).size();
     }
 
     public static String getUsername(String imageID) {
@@ -73,3 +120,5 @@ public class ImageDetailQuery extends ImageDetailManager {
         return imageDetails.toString();
     }
 }
+
+

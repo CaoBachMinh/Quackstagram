@@ -28,9 +28,10 @@ public  class CredentialsManager extends DataManager {
             String username = parts[0];
             String bio = parts[2];
             String password = parts[1];
-            User userDetails = new User(username, bio);
+            User user = new User(username);
+            user.setBio(bio);
             userPassword.put(username,password);
-            super.updateUserMap(username,userDetails);
+            super.updateUserMap(username,user);
         }
         }catch (IOException e) {
             e.printStackTrace();

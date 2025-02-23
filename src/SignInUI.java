@@ -27,11 +27,12 @@ public class SignInUI extends BaseUI {
         credentialsManager = new CredentialsManager();
         credentialsManager.readFile();
 
-        // followingManager = new FollowingManager();
-        // followingManager.readFile();
 
         imageDetailManager = new ImageDetailManager();
         imageDetailManager.readFile();
+
+
+
     }
 
     private void initializeUI() {
