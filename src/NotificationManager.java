@@ -55,13 +55,14 @@ public class NotificationManager extends DataManager {
 
     @Override
     void updateFile() {
+        if(notificationMessages==null){
+            return;
+        }
         if (lastWrittenIndex >= notificationMessages.size() - 1) {
             return; 
         }
 
-        if(notificationMessages==null){
-            return;
-        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) {     
             boolean isFirstWrite = true;
             for (int i = lastWrittenIndex + 1; i < notificationMessages.size(); i++) {
