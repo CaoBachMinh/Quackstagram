@@ -85,6 +85,7 @@ public class ImageUploadUI extends UIManager {
     private void createBioSaveButton() {
         saveButton = new JButton("Save Caption");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        saveButton.setVisible(false);
         saveButton.addActionListener(this::saveBioAction);
     }
 
