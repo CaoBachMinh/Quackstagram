@@ -14,7 +14,12 @@ import javax.swing.JPanel;
 
 public class InstagramProfileAction {
     private InstagramProfileUI instagramProfileUI;
+    private HeaderComponents headerComponents;
 
+    public InstagramProfileAction(HeaderComponents headerComponents) {
+        this.headerComponents = headerComponents;
+    }
+    
     public InstagramProfileAction(InstagramProfileUI instagramProfileUI) {
         this.instagramProfileUI = instagramProfileUI;
     }

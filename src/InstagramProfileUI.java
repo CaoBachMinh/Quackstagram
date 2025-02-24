@@ -26,20 +26,7 @@ public class InstagramProfileUI extends UIManager {
         dataManager =  new FollowingManager();
         FollowingManager.updateCurrentUser(user);
         dataManager.readFile();
-
-        ImageDetailQuery imageDetailQuery = new ImageDetailQuery();
-        int imageCount = imageDetailQuery.getImageUserCount(user);
-        int followersCount = user.getFollowersCount();
-        int followingCount = user.getFollowingCount();
-
-        String bio = user.getBio();
-
-        System.out.println("Bio for " + currentUser.getUsername() + ": " + bio); //print
-        currentUser.setBio(bio);
-        currentUser.setFollowersCount(followersCount);
-        currentUser.setFollowingCount(followingCount);
-        currentUser.setPostCount(imageCount);
-        System.out.println(currentUser.getPostsCount()); //print
+        
         setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -85,45 +72,9 @@ public class InstagramProfileUI extends UIManager {
     JPanel createHeaderPanel(String headerTitle){return null;}
     
     JPanel createHeaderPanel() {
-        String loggedInUsername = "";
-
         LoggedinUser loggedinUser = LoggedinUser.getInstance();
 
-        HeaderComponents headerComponents = new HeaderComponents(currentUser, loggedinUser, dataManager, isCurrentUser);
-        isCurrentUser = headerComponents.getIsCurrentUser();
-
-        JButton followButton;
-            if (isCurrentUser) {
-                followButton = new JButton("Edit Profile");
-            } else {
-                followButton = new JButton("Follow");
-                action.followButton(followButton, loggedInUsername, currentUser, dataManager);
-            };   
-        
-
-     // Profile Name and Bio Panel
-        JPanel profileNameAndBioPanel = new JPanel();
-        profileNameAndBioPanel.setLayout(new BorderLayout());
-        profileNameAndBioPanel.setBackground(new Color(249, 249, 249));
-
-        JLabel profileNameLabel = new JLabel(currentUser.getUsername());
-        profileNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        profileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10)); // Padding on the sides
-
-        JTextArea profileBio = new JTextArea(currentUser.getBio());
-        System.out.println("This is the bio "+currentUser.getUsername());
-        profileBio.setEditable(false);
-        profileBio.setFont(new Font("Arial", Font.PLAIN, 12));
-        profileBio.setBackground(new Color(249, 249, 249));
-        profileBio.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10)); // Padding on the sides
-
-        profileNameAndBioPanel.add(profileNameLabel, BorderLayout.NORTH);
-        profileNameAndBioPanel.add(profileBio, BorderLayout.CENTER);
-
-        headerPanel = new JPanel();
-        headerPanel.add(profileNameAndBioPanel);
-
-
+        HeaderComponents headerComponents = new HeaderComponents(currentUser, loggedinUser, isCurrentUser);
         return headerComponents.getHeaderPanel();
 
     }

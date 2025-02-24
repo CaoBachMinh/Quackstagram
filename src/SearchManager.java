@@ -57,14 +57,16 @@ public class SearchManager {
     private void classifyAndMergeImages(){
         Set<File> imagesFromPostSearch = null;
         Set<File> imagesFromHashtagSearch = null;
+
         if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
             imagesToDisplay = null; // Or set as empty? 
         }
-         else if(!keywordSet.isEmpty()) {
+
+        if(!keywordSet.isEmpty()) {
              SearchByCaption searchByCaption = new SearchByCaption();
              imagesFromPostSearch = searchByCaption.getImagesFromCaptionSearch();
          }
-        else if(!hashtagSet.isEmpty()) {
+        if(!hashtagSet.isEmpty()) {
             SearchByHashtag searchByHashtag = new SearchByHashtag();
             imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
         }
@@ -80,6 +82,7 @@ public class SearchManager {
                     imagesToDisplay.add(file);
             }
         }
+
         if (imagesFromHashtagSearch != null) {
             for (File file : imagesFromHashtagSearch){
                 if (file != null)
@@ -101,8 +104,12 @@ public class SearchManager {
         }
 
         void processText(){
-            String cleanedText = cleanText();
-            classifyText(cleanedText);
+            try{
+                String cleanedText = cleanText();
+                classifyText(cleanedText);
+            }catch (InvalidInputException e) {
+                System.err.println(e.getMessage());
+            }
         }
 
         String cleanText() {
@@ -123,10 +130,10 @@ public class SearchManager {
                 // Normalize multiple spaces between words
                 cleanedText = cleanedText.replaceAll("\\s+", " ");
             
-
                 System.out.println(cleanedText);
                 return cleanedText;
             }
+
 
         void classifyText (String cleanedText){
                 String[] words = cleanedText.split("\\s+");

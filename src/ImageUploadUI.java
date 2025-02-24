@@ -85,6 +85,7 @@ public class ImageUploadUI extends UIManager {
     private void createBioSaveButton() {
         saveButton = new JButton("Save Caption");
         saveButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        saveButton.setVisible(false);
         saveButton.addActionListener(this::saveBioAction);
     }
 
@@ -97,7 +98,7 @@ public class ImageUploadUI extends UIManager {
     }
 
     private void setImageIcon() {
-        Path destPath = imageUploadHandler.getDestPath();
+        Path destPath = imageUploadHandler.getTempDestPath();
         ImageIcon imageIcon = new ImageIcon(destPath.toString());
         if (imagePreviewLabel.getWidth() > 0 && imagePreviewLabel.getHeight() > 0) {
             Image image = imageIcon.getImage();
@@ -121,6 +122,7 @@ public class ImageUploadUI extends UIManager {
         String imageId = imageUploadHandler.getImageId();
         String username = imageUploadHandler.getUsername();
         ImageDetailManager.addImageDetails(imageId,username,bioText);
+        imageUploadHandler.saveFiletoDestPath();
         JOptionPane.showMessageDialog(this, "Caption saved: " + bioText);
     }
 
