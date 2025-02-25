@@ -28,7 +28,7 @@ public class SearchManager {
         return imageData;
     }
 
-    public  Set<String> getUserToDisplay(){
+    public Set<String> getUserToDisplay(){
         return usernameToDisplay;
     }
 
@@ -37,7 +37,7 @@ public class SearchManager {
         textHandler.processText();
 
         this.classifyAndMergeImages();
-        // this.usernameToDisplay = //Add Method search Username của Long ở đây
+        this.addUserToDisplay();
     }
 
 
@@ -50,10 +50,19 @@ public class SearchManager {
     }
 
     protected String usernameToSearch(){
-        return  usernameToSearch;
+        return usernameToSearch;
     } 
 
+    private void addUserToDisplay(){
+        usernameToDisplay = new HashSet<>();
 
+        if (usernameToSearch != null && !usernameToSearch.isEmpty()) {
+            SearchByUsername searchByUsername = new SearchByUsername();
+            usernameToDisplay = searchByUsername.getMatchingUsernames();
+        }
+    }
+
+    
     private void classifyAndMergeImages(){
         Set<File> imagesFromPostSearch = null;
         Set<File> imagesFromHashtagSearch = null;
@@ -141,7 +150,7 @@ public class SearchManager {
                 hashtagSet = new HashSet<>();
         
                 if (words.length == 1 && !words[0].startsWith("#") ) {
-                    usernameToSearch = cleanWord(words[0]); 
+                    usernameToSearch = cleanUsername(words[0]);
                 }
 
                 for (String word : words) {
@@ -150,24 +159,28 @@ public class SearchManager {
                         word = cleanHashtag(word);
                         hashtagSet.add(word);
                     } else {
-                        word = cleanWord(word); 
+                        word = cleanKeyWord(word); 
                         if(word.isEmpty()) continue;
                         keywordSet.add(word);
                     }
                 }
 
             }
-        String cleanWord(String word) {
-                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase().trim();
-            }
+        String cleanUsername(String username){
+            return username.replaceAll("[#]", "").toLowerCase().trim();
+        }
+
+        String cleanKeyWord(String word) {
+            return word.replaceAll("[._#]", "").toLowerCase().trim();
+        }
 
         String cleanHashtag(String word) {
-                return word.replaceAll("[^#a-zA-Z0-9]", "").trim();
-            }
+            return word.replaceAll("[^#a-zA-Z0-9]", "").trim();
+        }
 
         boolean isSkipWord(String word) {
-                return word.isEmpty() || word.matches("\\.+") || word.matches("_+");
-            }
+            return word.isEmpty() || word.matches("\\.+") || word.matches("_+");
+        }
     }
 }
 

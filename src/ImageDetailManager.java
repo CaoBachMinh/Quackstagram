@@ -112,7 +112,4 @@ public class ImageDetailManager extends DataManager {
     protected static Map<String, List<ImageDetails>> getHashtagImageDetails(){
         return hashtagImageDetails;
     }
-
-
-
 }
