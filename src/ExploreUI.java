@@ -15,6 +15,7 @@ import javax.swing.*;
 
 public class ExploreUI extends UIManager {
     private JPanel mainContentPanel;
+    private SearchManager searchManager;
 
     public ExploreUI() {
         setTitle("Explore");
@@ -49,11 +50,16 @@ public class ExploreUI extends UIManager {
         // Search bar at the top
         setUpSearchPanel();
 
+        if(searchText != null){
+            searchManager = new SearchManager(searchText);
+            searchManager.processSearch();
+        }
+
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
         // Load images from the uploaded folder
-        loadButtontoPanel(imageGridPanel,searchText);
-        loadImageToPanel(imageGridPanel,searchText);
+        loadButtontoPanel(imageGridPanel);
+        loadImageToPanel(imageGridPanel);
 
         // Set up scroll
         setUpScrollPanel(imageGridPanel);
@@ -81,17 +87,19 @@ public class ExploreUI extends UIManager {
         mainContentPanel.add(scrollPane); // This will stretch to take up remaining space
     }
 
-    private void loadImageToPanel(JPanel imageGridPanel,String searchText) {
+    private void loadImageToPanel(JPanel imageGridPanel) {
         File imageDir = new File("img/uploaded");
         if (imageDir.exists() && imageDir.isDirectory()) {
             File[] imageFiles = imageDir.listFiles((dir, name) -> name.matches(".*\\.(png|jpg|jpeg)"));
-            if (imageFiles == null) {return;}
-            if (searchText != null) {
-                SearchManager searchManager = new SearchManager(searchText);
-                searchManager.processSearch();
+            
+            if(searchManager !=null){
                 imageFiles = searchManager.getImageToDisplay();
-                if (isPostDataValid(imageFiles,imageGridPanel)){return;}
             }
+
+            if (imageFiles == null) {return;}
+
+            if (isPostDataValid(imageFiles,imageGridPanel)){return;}
+            
             for (File imageFile : imageFiles) {
                 Image image = createImage(imageFile);
                 ImageIcon imageIcon = new ImageIcon(image);
@@ -191,30 +199,34 @@ public class ExploreUI extends UIManager {
         } );
     }
 
-    public void loadButtontoPanel(JPanel backButtonPanel,String searchText) {
+    public void loadButtontoPanel(JPanel backButtonPanel) {
         Set<String> usersToDisplay = new HashSet<>();
-        if (searchText != null) {
-        SearchManager searchManager = new SearchManager(searchText);
-        searchManager.processSearch();
-        usersToDisplay = searchManager.getUserToDisplay();
+        if(searchManager !=null){
+            usersToDisplay = searchManager.getUserToDisplay();
         }
-        // Create buttons for each user in the set
-        for (String username : usersToDisplay) {
-            if (username.contains(searchText)) {
-                System.out.println("Users to display: " + usersToDisplay);
-            JButton userButton = new JButton(username);
-            userButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    User user = new User(username);
-                    InstagramProfileUI profileUI = new InstagramProfileUI(user);
-                    profileUI.setVisible(true);
-                    dispose();
-                }
-            });
 
+        if(usersToDisplay == null) return;
+
+        
+        for (String username : usersToDisplay) {
+            JButton userButton =createButtonUser(username);
             backButtonPanel.add(userButton);
-            }
         }
     }
+
+    private JButton createButtonUser(String username){
+        JButton userButton = new JButton(username);
+        userButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                User user = DataManager.getUserDetails(username);
+                InstagramProfileUI profileUI = new InstagramProfileUI(user);
+                profileUI.setVisible(true);
+                dispose();
+            }
+        });
+        return userButton;
+    }
+
+
 }

@@ -7,12 +7,13 @@ import java.util.Set;
 public class SearchByUsername extends SearchManager {
     Set<String> matchingUsernames;
 
-    public void searchUsername() {
+    private void searchUsername() {
+        matchingUsernames = new HashSet<>();
         String nametoSearch = usernameToSearch();
         Map<String, User> userMap = DataManager.getUserMap();
-        matchingUsernames = new HashSet<>();
+        
         for (String username : userMap.keySet()) {
-            if (username.contains(nametoSearch)) {
+            if (username.toLowerCase().contains(nametoSearch)) {
                 matchingUsernames.add(username);
             }
         }
