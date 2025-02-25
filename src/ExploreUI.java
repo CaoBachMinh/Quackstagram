@@ -53,14 +53,16 @@ public class ExploreUI extends UIManager {
         if(searchText != null){
             searchManager = new SearchManager(searchText);
             searchManager.processSearch();
+            JPanel userPanel = new JPanel(new GridLayout(0,1));
+            userPanel.setMaximumSize(new Dimension(WIDTH, 10));
+            loadUsertoPanel(userPanel);
+            mainContentPanel.add(userPanel);
         }
 
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
         // Load images from the uploaded folder
-        loadButtontoPanel(imageGridPanel);
         loadImageToPanel(imageGridPanel);
-
         // Set up scroll
         setUpScrollPanel(imageGridPanel);
 
@@ -80,8 +82,8 @@ public class ExploreUI extends UIManager {
         mainContentPanel.add(searchPanel);
     }
 
-    private void setUpScrollPanel(JPanel imageGridPanel) {
-        JScrollPane scrollPane = new JScrollPane(imageGridPanel);
+    private void setUpScrollPanel(JPanel panel) {
+        JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainContentPanel.add(scrollPane); // This will stretch to take up remaining space
@@ -111,7 +113,7 @@ public class ExploreUI extends UIManager {
     }
 
     private boolean isPostDataValid(File[] imageFiles, JPanel imageGridPanel) {
-        if (imageFiles.length != 0) {
+        if (imageFiles.length != 0 || searchManager == null) {
             return false;
         }
         JPanel noPostPanel = new JPanel(new BorderLayout());
@@ -119,6 +121,18 @@ public class ExploreUI extends UIManager {
         noPost.setFont(new Font("Arial", Font.BOLD, 16));
         noPostPanel.add(noPost, BorderLayout.CENTER);
         imageGridPanel.add(noPostPanel);
+        return true;
+    }
+
+    private boolean isUserDataValid(JPanel userPanel, Set<String> usersList){
+        if (usersList.size() != 0) {
+            return false;
+        }
+        JPanel noUserPanel = new JPanel(new BorderLayout());
+        JLabel noUser = new JLabel("No User Found!");
+        noUser.setFont(new Font("Arial", Font.BOLD, 16));
+        noUserPanel.add(noUser, BorderLayout.CENTER);
+        userPanel.add(noUserPanel);
         return true;
     }
 
@@ -199,18 +213,17 @@ public class ExploreUI extends UIManager {
         } );
     }
 
-    public void loadButtontoPanel(JPanel backButtonPanel) {
+    public void loadUsertoPanel(JPanel userPanel) {
         Set<String> usersToDisplay = new HashSet<>();
         if(searchManager !=null){
             usersToDisplay = searchManager.getUserToDisplay();
         }
 
-        if(usersToDisplay == null) return;
-
+        if(isUserDataValid(userPanel,usersToDisplay)) return;
         
         for (String username : usersToDisplay) {
-            JButton userButton =createButtonUser(username);
-            backButtonPanel.add(userButton);
+            JButton userButton = createButtonUser(username);
+            userPanel.add(userButton);
         }
     }
 
