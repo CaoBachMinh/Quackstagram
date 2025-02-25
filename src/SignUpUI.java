@@ -23,13 +23,25 @@ public class SignUpUI extends BaseUI {
     }
 
     private void initializeUI() {
+        UserAndPassText(); // hiện tại đang lặp method này với signinui nhưng chưa bt sửa kiểu gì
+
+        txtBio = txtBio();
+
+        btnUploadPhoto = createUploadPhotoButton();
+
+        btnRegister = createRegisterButton();
+
+        btnSignIn = toSignInButton();
+
+        JPanel registerPanel = registerPanel(btnRegister, btnSignIn);
+
+        // Adding components to the frame
+        add(registerPanel, BorderLayout.SOUTH);
+    }
+
+    private void UserAndPassText() {
         txtUsername = new JTextField("Username");
         txtPassword = new JTextField("Password");
-        txtBio = new JTextField("Bio");
-        btnUploadPhoto = new JButton("Upload Photo");
-        btnRegister = new JButton("Register");
-        btnSignIn = new JButton("Already have an account? Sign In");
-
         txtUsername.setForeground(Color.GRAY);
         txtPassword.setForeground(Color.GRAY);
 
@@ -38,39 +50,50 @@ public class SignUpUI extends BaseUI {
         fieldsPanel.add(txtPassword);
         fieldsPanel.add(Box.createVerticalStrut(10));
 
-        OpenSignUI listen = new OpenSignUI();
         Listener(txtUsername, "Username");
         Listener(txtPassword, "Password");
+    }
 
-        //Bio
+    private JTextField txtBio() {
+        txtBio = new JTextField("Bio");
         txtBio.setForeground(Color.GRAY);
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(txtBio);
         Listener(txtBio, "Bio");
+        return txtBio;
+    }
 
-        //Photo
-        JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        photoUploadPanel.add(btnUploadPhoto);
-        fieldsPanel.add(photoUploadPanel);
-        action.photoUpload(fieldsPanel, btnUploadPhoto, txtUsername);
-
-        // Register button with black text
+    private JButton createRegisterButton() {
+        btnRegister = new JButton("Register");
         btnRegister.setBackground(new Color(255, 90, 95)); // Use a red color that matches the mockup
         btnRegister.setForeground(Color.BLACK); // Set the text color to black
         btnRegister.setFocusPainted(false);
         btnRegister.setBorderPainted(false);
         btnRegister.setFont(new Font("Arial", Font.BOLD, 14));
         action.addRegisterButton(btnRegister, txtUsername, txtPassword, txtBio);
+        return btnRegister;
+    }
 
+    private JButton createUploadPhotoButton() {
+        btnUploadPhoto = new JButton("Upload Photo");
+        JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        photoUploadPanel.add(btnUploadPhoto);
+        fieldsPanel.add(photoUploadPanel);
+        action.photoUpload(fieldsPanel, btnUploadPhoto, txtUsername);
+        return btnUploadPhoto;
+    }
+
+    private JPanel registerPanel(JButton btnRegister, JButton btnSignIn) {
         JPanel registerPanel = new JPanel(new BorderLayout()); // Panel to contain the register button
         registerPanel.setBackground(Color.WHITE); // Background for the panel
         registerPanel.add(btnRegister, BorderLayout.CENTER);
-
-        // Adding components to the frame
-        add(registerPanel, BorderLayout.SOUTH);
-
-         // Adding the sign in button to the register panel or another suitable panel
-        action.buttonSignIn(btnSignIn, this);
         registerPanel.add(btnSignIn, BorderLayout.SOUTH);
+        return registerPanel;
+    }
+
+    private JButton toSignInButton() {
+        btnSignIn = new JButton("Already have an account? Sign In");
+        action.buttonSignIn(btnSignIn, this);
+        return btnSignIn;
     }
 }

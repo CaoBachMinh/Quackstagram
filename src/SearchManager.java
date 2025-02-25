@@ -1,37 +1,43 @@
 package src;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class SearchManager {
     
     private String textToSearch;
-    private Set<String> keywordSet;
-    private Set<String> hashtagSet;
-    private String usernameToSearch;
+    private static Set<String> keywordSet;
+    private static Set<String> hashtagSet;
+    private static String usernameToSearch;
     private Set<File> imagesToDisplay;
     private Set<String> usernameToDisplay;
 
-    
+
     public SearchManager(String textToSearch){
         this.textToSearch = textToSearch;
     }
 
-    public  Set<File> getImageToDisplay(){
-        return imagesToDisplay;
+    protected  SearchManager(){ //default constructor for children class
+        this.textToSearch = null;
     }
 
-    public  Set<String> getUserToDisplay(){
+
+    public  File[] getImageToDisplay(){
+        File[] imageData = imagesToDisplay.toArray(new File[imagesToDisplay.size()]);
+        return imageData;
+    }
+
+    public Set<String> getUserToDisplay(){
         return usernameToDisplay;
     }
 
     public void processSearch(){
         TextHandler textHandler = new TextHandler(textToSearch);
         textHandler.processText();
+
         this.classifyAndMergeImages();
-        this.usernameToDisplay = //Add Method search Username của Long ở đây
+        this.addUserToDisplay();
     }
 
 
@@ -47,29 +53,51 @@ public class SearchManager {
         return usernameToSearch;
     } 
 
+    private void addUserToDisplay(){
+        usernameToDisplay = new HashSet<>();
 
+        if (usernameToSearch != null && !usernameToSearch.isEmpty()) {
+            SearchByUsername searchByUsername = new SearchByUsername();
+            usernameToDisplay = searchByUsername.getMatchingUsernames();
+        }
+    }
+
+    
     private void classifyAndMergeImages(){
+        Set<File> imagesFromPostSearch = null;
+        Set<File> imagesFromHashtagSearch = null;
+
         if (keywordSet.isEmpty() && hashtagSet.isEmpty()){
-            imagesToDisplay = null;
+            imagesToDisplay = null; // Or set as empty? 
         }
-        else if(!keywordSet.isEmpty()) {
-            File[] imagesFromPostSearch = //implement Post search method
-        }
-        else if(!hashtagSet.isEmpty()) {
-            File[] imagesFromHashtagSearch = //implement Hashtag search method
+
+        if(!keywordSet.isEmpty()) {
+             SearchByCaption searchByCaption = new SearchByCaption();
+             imagesFromPostSearch = searchByCaption.getImagesFromCaptionSearch();
+         }
+        if(!hashtagSet.isEmpty()) {
+            SearchByHashtag searchByHashtag = new SearchByHashtag();
+            imagesFromHashtagSearch = searchByHashtag.getImagesFromHashtagSearch();
         }
         mergeImageToDisplay(imagesFromPostSearch,imagesFromHashtagSearch);
     }
 
-    private void mergeImageToDisplay(File[] imagesFromPostSearch, File[] imagesFromHashtagSearch) {
+    private void mergeImageToDisplay(Set<File> imagesFromPostSearch, Set<File> imagesFromHashtagSearch) {
         imagesToDisplay = new HashSet<>();
+
         if (imagesFromPostSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromPostSearch));
-        }
-        if (imagesFromHashtagSearch != null) {
-            imagesToDisplay.addAll(Arrays.asList(imagesFromHashtagSearch));
+            for (File file : imagesFromPostSearch){
+                if (file != null)
+                    imagesToDisplay.add(file);
+            }
         }
 
+        if (imagesFromHashtagSearch != null) {
+            for (File file : imagesFromHashtagSearch){
+                if (file != null)
+                    imagesToDisplay.add(file);
+            }
+        }
     }
 
     private class InvalidInputException extends RuntimeException {
@@ -85,8 +113,12 @@ public class SearchManager {
         }
 
         void processText(){
-            String cleanedText = cleanText();
-            classifyText(cleanedText);
+            try{
+                String cleanedText = cleanText();
+                classifyText(cleanedText);
+            }catch (InvalidInputException e) {
+                System.err.println(e.getMessage());
+            }
         }
 
         String cleanText() {
@@ -107,16 +139,18 @@ public class SearchManager {
                 // Normalize multiple spaces between words
                 cleanedText = cleanedText.replaceAll("\\s+", " ");
             
+                System.out.println(cleanedText);
                 return cleanedText;
             }
+
 
         void classifyText (String cleanedText){
                 String[] words = cleanedText.split("\\s+");
                 keywordSet = new HashSet<>();
                 hashtagSet = new HashSet<>();
         
-                if (words.length == 1) {
-                    usernameToSearch = cleanWord(words[0]); 
+                if (words.length == 1 && !words[0].startsWith("#") ) {
+                    usernameToSearch = cleanUsername(words[0]);
                 }
 
                 for (String word : words) {
@@ -125,24 +159,28 @@ public class SearchManager {
                         word = cleanHashtag(word);
                         hashtagSet.add(word);
                     } else {
-                        word = cleanWord(word); 
+                        word = cleanKeyWord(word); 
                         if(word.isEmpty()) continue;
                         keywordSet.add(word);
                     }
                 }
 
             }
-        String cleanWord(String word) {
-                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase();
-            }
+        String cleanUsername(String username){
+            return username.replaceAll("[#]", "").toLowerCase().trim();
+        }
+
+        String cleanKeyWord(String word) {
+            return word.replaceAll("[._#]", "").toLowerCase().trim();
+        }
 
         String cleanHashtag(String word) {
-                return word.replaceAll("[^#a-zA-Z0-9]", "");
-            }
+            return word.replaceAll("[^#a-zA-Z0-9]", "").trim();
+        }
 
         boolean isSkipWord(String word) {
-                return word.isEmpty() || word.matches("\\.+") || word.matches("_+");
-            }
+            return word.isEmpty() || word.matches("\\.+") || word.matches("_+");
+        }
     }
 }
 

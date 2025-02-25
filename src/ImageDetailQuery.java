@@ -26,7 +26,7 @@ public class ImageDetailQuery extends ImageDetailManager {
         try {
             List<ImageDetails> imageList = keywordImageDetails.get(keyword);
             if (imageList == null) {
-                throw new NullPointerException("Keyword not found");
+                throw new NullPointerException("Keyword: "+ keyword + " not found");
             }
             return imageList;
         }catch (NullPointerException e) {
@@ -41,7 +41,7 @@ public class ImageDetailQuery extends ImageDetailManager {
                 throw new InvalidHashtagException ("Hashtag must start with '#'");
             List<ImageDetails> imageList = hashtagImageDetails.get(hashtag);
             if (imageList == null) 
-                throw new InvalidHashtagException("Hashtag not found");
+                throw new InvalidHashtagException("Hashtag: "+ hashtag + " not found");
 
             return imageList;
         }catch (InvalidHashtagException e) {
@@ -74,12 +74,18 @@ public class ImageDetailQuery extends ImageDetailManager {
     }
 
     public static int getImageUserCount(String username) {
-        return userToImageMap.get(username).size();
+        if (userToImageMap.get(username) ==null)
+            return 0;
+        else
+            return userToImageMap.get(username).size();
     }
 
     public static int getImageUserCount(User user){
         String username = user.getUsername();
-        return userToImageMap.get(username).size();
+        if(userToImageMap.get(username) ==null)
+            return 0;
+        else
+            return userToImageMap.get(username).size();
     }
 
     public static String getUsername(String imageID) {

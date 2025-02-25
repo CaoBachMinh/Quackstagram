@@ -16,6 +16,10 @@ public  abstract class  DataManager {
     protected static User getUserDetails(String username) {
         return userMap.get(username);
     }
+
+    protected static Map <String,User> getUserMap() {
+        return userMap;
+    }
 }
 
 

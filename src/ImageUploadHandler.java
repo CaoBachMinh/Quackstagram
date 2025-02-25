@@ -13,8 +13,10 @@ public class ImageUploadHandler {
     private ImageUploadUI imageUploadUI;
     private boolean imageUploaded;
     private static Path destPath;
+    private static Path tempDestPath;
     private String username;
     private String imageId;
+    private File pngFile;
 
     public ImageUploadHandler(ImageUploadUI imageUploadUI ) {
         this.imageUploadUI = imageUploadUI;
@@ -28,8 +30,19 @@ public class ImageUploadHandler {
         }
         processFile(selectedFile);
     }
-    public Path getDestPath(){
-        return destPath;
+    public Path getTempDestPath(){
+        return tempDestPath;
+    }
+
+    public void saveFiletoDestPath(){
+        // destPath = Paths.get("img", "uploaded", newFileName);
+        try {
+            Files.createDirectories(destPath.getParent());
+            Files.copy(pngFile.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.delete(tempDestPath);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(imageUploadUI, "Error saving image: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     public String getUsername(){
         return username;
@@ -54,7 +67,7 @@ public class ImageUploadHandler {
         if (selectedFile == null) return;
 
         try {
-            File pngFile = convertToPng(selectedFile);
+            pngFile = convertToPng(selectedFile);
 
             username = LoggedinUser.getInstance().getUsername();
             int id = getNextImageId(username);
@@ -62,9 +75,15 @@ public class ImageUploadHandler {
             imageId = username + "_" + id;
             String newFileName = username + "_" + id + "." + fileExtension;
   
+
             destPath = Paths.get("img", "uploaded", newFileName);
-            Files.createDirectories(destPath.getParent());
-            Files.copy(pngFile.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
+
+            tempDestPath = Paths.get("img", "temp_uploaded", newFileName);  
+            Files.createDirectories(tempDestPath.getParent());
+            Files.copy(pngFile.toPath(), tempDestPath, StandardCopyOption.REPLACE_EXISTING);
+            
+            File tempFile = tempDestPath.toFile();
+            tempFile.deleteOnExit();
 
             imageUploaded = true;
             JOptionPane.showMessageDialog(imageUploadUI, "Image uploaded and preview updated!");
@@ -79,13 +98,13 @@ public class ImageUploadHandler {
             throw new IOException("Unsupported image format");
         }
 
-        File pngFile = File.createTempFile("temp_", ".png");
-        pngFile.deleteOnExit();
-        boolean success = ImageIO.write(image, "png", pngFile);
+        File newpngFile = File.createTempFile("temp_", ".png");
+        newpngFile.deleteOnExit();
+        boolean success = ImageIO.write(image, "png", newpngFile);
         if (!success) {
             throw new IOException("Failed to convert image to PNG");
         }
-        return pngFile;
+        return newpngFile;
     }
 
     private int getNextImageId(String username) throws IOException {
@@ -123,5 +142,9 @@ public class ImageUploadHandler {
             }
         }
         return maxId;
+    }
+
+    public void deleteTempImageFiles(){
+        
     }
 }
