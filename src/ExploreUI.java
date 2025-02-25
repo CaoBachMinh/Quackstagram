@@ -7,7 +7,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.*;
 
 public class ExploreUI extends UIManager {
@@ -49,6 +52,7 @@ public class ExploreUI extends UIManager {
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
         // Load images from the uploaded folder
+        loadButtontoPanel(imageGridPanel,searchText);
         loadImageToPanel(imageGridPanel,searchText);
 
         // Set up scroll
@@ -185,5 +189,32 @@ public class ExploreUI extends UIManager {
             profileUI.setVisible(true);
             dispose(); // Close the current frame
         } );
+    }
+
+    public void loadButtontoPanel(JPanel backButtonPanel,String searchText) {
+        Set<String> usersToDisplay = new HashSet<>();
+        if (searchText != null) {
+        SearchManager searchManager = new SearchManager(searchText);
+        searchManager.processSearch();
+        usersToDisplay = searchManager.getUserToDisplay();
+        }
+        // Create buttons for each user in the set
+        for (String username : usersToDisplay) {
+            if (username.contains(searchText)) {
+                System.out.println("Users to display: " + usersToDisplay);
+            JButton userButton = new JButton(username);
+            userButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    User user = new User(username);
+                    InstagramProfileUI profileUI = new InstagramProfileUI(user);
+                    profileUI.setVisible(true);
+                    dispose();
+                }
+            });
+
+            backButtonPanel.add(userButton);
+            }
+        }
     }
 }

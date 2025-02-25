@@ -28,7 +28,7 @@ public class SearchManager {
         return imageData;
     }
 
-    public  Set<String> getUserToDisplay(){
+    public Set<String> getUserToDisplay(){
         return usernameToDisplay;
     }
 
@@ -37,7 +37,7 @@ public class SearchManager {
         textHandler.processText();
 
         this.classifyAndMergeImages();
-        // this.usernameToDisplay = //Add Method search Username của Long ở đây
+        this.addUserToDisplay();
     }
 
 
@@ -50,10 +50,33 @@ public class SearchManager {
     }
 
     protected String usernameToSearch(){
-        return  usernameToSearch;
+        return usernameToSearch;
     } 
 
 
+    private void addUserToDisplay(){
+        usernameToDisplay = new HashSet<>();
+        Set<String> matchingUsername = null;
+
+        if (usernameToSearch != null && !usernameToSearch.isEmpty()) {
+            SearchByUsername searchByUsername = new SearchByUsername();
+            matchingUsername = searchByUsername.getMatchingUsernames();
+        }
+        if (matchingUsername != null) {
+            addButtonToDisplay(matchingUsername);
+        }
+    }
+
+    private void addButtonToDisplay(Set<String> matchingUsername){
+        if (matchingUsername != null) {
+            for (String username : matchingUsername){
+                if (username != null){
+                    usernameToDisplay.add(username);
+                }
+            }
+        }
+    }
+    
     private void classifyAndMergeImages(){
         Set<File> imagesFromPostSearch = null;
         Set<File> imagesFromHashtagSearch = null;
@@ -158,7 +181,7 @@ public class SearchManager {
 
             }
         String cleanWord(String word) {
-                return word.replaceAll("^[._#]+|[._#]+$", "").toLowerCase().trim();
+                return word.replaceAll("^[._#]+|[._#]+$", "").trim();
             }
 
         String cleanHashtag(String word) {
