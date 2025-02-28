@@ -63,7 +63,7 @@ public class ImageDetailManager extends DataManager {
         imagesMap.put(imageID, imageDetails);
     }
 
-    private void processHashtagBio (ImageDetails imageDetails){
+    private static void processHashtagBio (ImageDetails imageDetails){
         String bio = imageDetails.getDescription();
         String[] words = bio.split("\\s+");
         String article = "a, an, the, what, where, who, when, whom";
@@ -93,6 +93,8 @@ public class ImageDetailManager extends DataManager {
 
         List<ImageDetails> userImageList = userToImageMap.computeIfAbsent(username, k -> new ArrayList<>());
         userImageList.add(newImageDetails);
+
+        processHashtagBio(newImageDetails);
     }
 
     protected static Map<String,List<ImageDetails>> getUserToImage() {
