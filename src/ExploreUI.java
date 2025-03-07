@@ -217,6 +217,7 @@ public class ExploreUI extends UIManager {
         Set<String> usersToDisplay = new HashSet<>();
         if(searchManager !=null){
             usersToDisplay = searchManager.getUserToDisplay();
+            System.out.println("result: "+usersToDisplay.toString());
         }
 
         if(isUserDataValid(userPanel,usersToDisplay)) return;
