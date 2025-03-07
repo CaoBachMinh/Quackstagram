@@ -73,7 +73,6 @@ public class SignUpAction {
                 return;
             }
             try {
-                // Lưu ảnh với username mới
                 saveProfilePicture(selectedProfilePicture, username);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(signUpUI, "Error saving profile picture", "Error", JOptionPane.ERROR_MESSAGE);

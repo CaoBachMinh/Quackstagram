@@ -36,6 +36,10 @@ public class QuakstagramHomeUI extends UIManager {
         notificationManager = new NotificationManager();
         notificationManager.readFile();
 
+        FollowingManager.updateCurrentUser(LoggedinUser.getInstance());
+        DataManager dataManager =  new FollowingManager();
+        dataManager.readFile();
+
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
