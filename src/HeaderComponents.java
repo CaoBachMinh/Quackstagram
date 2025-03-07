@@ -25,23 +25,18 @@ public class HeaderComponents {
     }
 
     private void setupComponents(User currentUser) {
-        // Thiết lập layout cho headerPanel
+        //layout
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(Color.GRAY);
 
-        // Tạo topHeaderPanel
         JPanel topHeaderPanel = createTopHeaderPanel(currentUser);
 
-        // Tạo profileImagePanel
         createProfileImagePanel(currentUser, topHeaderPanel);
 
-        // Tạo statsPanel
         createstatsPanel(currentUser);
 
-        // Profile Name and Bio Panel
         JPanel profileNameAndBioPanel = createProfileNameAndBioPanel(currentUser);
 
-        // Thêm statsPanel và followButton vào topHeaderPanel
         JPanel statsFollowPanel = new JPanel();
         statsFollowPanel.setLayout(new BoxLayout(statsFollowPanel, BoxLayout.Y_AXIS));
         statsFollowPanel.add(statsPanel);

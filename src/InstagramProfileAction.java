@@ -63,9 +63,9 @@ public class InstagramProfileAction {
         });
     }
           
-    protected void displayImage(ImageIcon imageIcon, JPanel contentPanel) { //hành động xuất hình ảnh
+    protected void displayImage(ImageIcon imageIcon, JPanel contentPanel) {
         contentPanel.removeAll(); // Remove existing content
-        contentPanel.setLayout(new BorderLayout()); // Change layout for image display
+        contentPanel.setLayout(new BorderLayout());
 
         JLabel fullSizeImageLabel = new JLabel(imageIcon);
         fullSizeImageLabel.setHorizontalAlignment(JLabel.CENTER);

@@ -75,7 +75,7 @@ public class InstagramProfileUI extends UIManager {
         LoggedinUser loggedinUser = LoggedinUser.getInstance();
 
         HeaderComponents headerComponents = new HeaderComponents(currentUser, loggedinUser, isCurrentUser);
-        return headerComponents.getHeaderPanel();
+        return headerComponents.getHeaderPanel();   
 
     }
 

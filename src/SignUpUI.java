@@ -23,7 +23,7 @@ public class SignUpUI extends BaseUI {
     }
 
     private void initializeUI() {
-        UserAndPassText(); // hiện tại đang lặp method này với signinui nhưng chưa bt sửa kiểu gì
+        UserAndPassText();
 
         txtBio = txtBio();
 

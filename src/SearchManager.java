@@ -148,6 +148,7 @@ public class SearchManager {
                 String[] words = cleanedText.split("\\s+");
                 keywordSet = new HashSet<>();
                 hashtagSet = new HashSet<>();
+                usernameToSearch=null;
         
                 if (words.length == 1 && !words[0].startsWith("#") ) {
                     usernameToSearch = cleanUsername(words[0]);
