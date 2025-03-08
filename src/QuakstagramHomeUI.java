@@ -1,6 +1,5 @@
 package src;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import java.awt.event.MouseAdapter;
@@ -10,19 +9,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 
 public class QuakstagramHomeUI extends UIManager {
