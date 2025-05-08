@@ -4,17 +4,19 @@ import src.DataManager.CredentialsManager;
 import src.DataManager.DataManager;
 import src.Pages.OpenSignUI;
 import src.Pages.SignUpUI;
+import src.SQLDatabase.Database;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class SignUpAction {
-    private final String credentialsFilePath = "data/credentials.txt";
     private final String profilePhotoStoragePath = "img/storage/profile/";
     private final SignUpUI signUpUI;
     private File selectedProfilePicture = null;
@@ -85,21 +87,21 @@ public class SignUpAction {
             }
 
             CredentialsManager.addNewCredential(username, password, bio);
-            DataManager credentialsManager = new CredentialsManager();
-            credentialsManager.updateFile();
             handleRegistrationResult(true);
         }
     }
 
     private boolean doesUsernameExist(String username) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(credentialsFilePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith(username + ":")) {
+        try {
+            String query = "SELECT COUNT(*) FROM user WHERE username = '"+username+"'";
+            ResultSet dataset = Database.getDatasetFromQuery(query);
+            while (dataset.next()) {
+                int count = dataset.getInt("COUNT(*)");
+                if (count == 1) {
                     return true;
                 }
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;

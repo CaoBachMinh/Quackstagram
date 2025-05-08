@@ -1,19 +1,21 @@
 package src.DataManager;
 
-import src.Components.ImageComponent.ImageDetails;
+import src.Components.UIComponents.ImageDetails;
 import src.Components.User.User;
+import src.SQLDatabase.Database;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ImageDetailManager extends DataManager {
-    private static final  String filePath = "img/image_details.txt"; 
     private static final String IMAGE_FOLDER = "img/uploaded/";
     private static Map<String, ImageDetails> imagesMap = new HashMap<>();
     private static Map<String,List<ImageDetails>> userToImageMap = new HashMap<>();
@@ -23,41 +25,24 @@ public class ImageDetailManager extends DataManager {
 
 
     @Override
-    public void readFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(", ");
-            String imageID = parts[0].split(": ")[1].trim();
-            String username = parts[1].split(": ")[1].trim();
-            String description = parts[2].split(": ")[1].trim();
-            String timestamp = parts[3].split(": ")[1].trim();
-            int likes = Integer.parseInt(parts[4].split(": ")[1].trim());
-            String imagePath = IMAGE_FOLDER + parts[0].split(": ")[1] + ".png"; // Assuming PNG format
-            User user = getUserDetails(username);
-            ImageDetails imageDetails = new ImageDetails (imageID, user, imagePath, description, timestamp, likes);
-
-            processImageDetail(imageDetails,username,imageID);
-            
-            
-        }
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) { 
-            for (ImageDetails imageDetails : imageDetailsList) {
-                writer.write(imageDetails.toString()); 
-                writer.newLine(); 
+    public void readDatabase() {
+        try {
+            ResultSet dataset = Database.getPostsTable();
+            while (dataset.next()) {
+                String imageID = dataset.getString("post_id");
+                String username = dataset.getString("username");
+                String description = dataset.getString("caption");
+                String timestamp = dataset.getString("date");
+                int likes = dataset.getInt("likeCount");
+                String imagePath = dataset.getString("image"); // Assuming PNG format
+                User user = getUserDetails(username);
+                ImageDetails imageDetails = new ImageDetails (imageID, user, imagePath, description, timestamp, likes);
+                processImageDetail(imageDetails,username,imageID);
             }
-        } catch (IOException e) {
+        }catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
 
     private void processImageDetail(ImageDetails imageDetails,String username,String imageID){
         processHashtagBio(imageDetails);
@@ -84,18 +69,22 @@ public class ImageDetailManager extends DataManager {
     }
 
     public static void addImageDetails(String imageId, String username, String bio){
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        User user = getUserDetails(username);
-        String imagePath = IMAGE_FOLDER + imageId + ".png";
-        int likes = 0;
-        ImageDetails newImageDetails = new ImageDetails(imageId, user, imagePath, bio, timestamp, likes);
-        imagesMap.put(imageId,newImageDetails);
-        imageDetailsList.add(newImageDetails);
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            User user = getUserDetails(username);
+            String imagePath = IMAGE_FOLDER + imageId + ".png";
+            Database.insertDataToPost(imageId,username,bio,imagePath,timestamp);
+            ImageDetails newImageDetails = new ImageDetails(imageId, user, imagePath, bio, timestamp, 0);
+            imagesMap.put(imageId,newImageDetails);
+            imageDetailsList.add(newImageDetails);
 
-        List<ImageDetails> userImageList = userToImageMap.computeIfAbsent(username, k -> new ArrayList<>());
-        userImageList.add(newImageDetails);
+            List<ImageDetails> userImageList = userToImageMap.computeIfAbsent(username, k -> new ArrayList<>());
+            userImageList.add(newImageDetails);
 
-        processHashtagBio(newImageDetails);
+            processHashtagBio(newImageDetails);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     protected static Map<String,List<ImageDetails>> getUserToImage() {

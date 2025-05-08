@@ -19,8 +19,7 @@ public class SignInAction {
 
 
     // Combined method to configure both sign-in and register buttons
-    public void configureButtons(JButton btnSignIn, JPanel loginPanel, 
-                                 JButton btnRegisterNow, JPanel buttonPanel) {
+    public void configureButtons(JButton btnSignIn, JButton btnRegisterNow) {
         // Configure Sign-In Button
         btnSignIn.addActionListener(e -> {
             // Sign-in logic

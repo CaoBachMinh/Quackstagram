@@ -1,6 +1,7 @@
 package src.Pages;
 
 import src.Feature.SignInUpAction.SignUpAction;
+import src.SQLDatabase.Database;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,6 +21,7 @@ public class SignUpUI extends BaseUI {
         super();
         setTitle("Quackstagram - Register");
         setupCommonUIProperties();
+        Database.openConnection();
         action = new SignUpAction(this);
         initializeUI();
     }

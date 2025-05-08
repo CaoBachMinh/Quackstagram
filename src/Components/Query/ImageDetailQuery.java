@@ -1,6 +1,6 @@
 package src.Components.Query;
 
-import src.Components.ImageComponent.ImageDetails;
+import src.Components.UIComponents.ImageDetails;
 import src.Components.User.User;
 import src.DataManager.FollowingQuery;
 import src.DataManager.ImageDetailManager;

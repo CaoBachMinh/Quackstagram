@@ -1,6 +1,6 @@
 package src.Feature.SearchAction;
 
-import src.Components.ImageComponent.ImageDetails;
+import src.Components.UIComponents.ImageDetails;
 import src.Components.Query.ImageDetailQuery;
 
 import java.io.File;

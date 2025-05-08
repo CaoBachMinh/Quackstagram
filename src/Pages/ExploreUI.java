@@ -1,7 +1,7 @@
 package src.Pages;
 
 import src.DataManager.DataManager;
-import src.Components.ImageComponent.ImageBox;
+import src.Components.UIComponents.ImageBox;
 import src.Feature.SearchAction.SearchManager;
 import src.Components.User.User;
 

@@ -1,4 +1,4 @@
-package src.Components.ImageComponent;
+package src.Components.UIComponents;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

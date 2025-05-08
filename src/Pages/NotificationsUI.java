@@ -19,7 +19,6 @@ public class NotificationsUI extends UIManager {
         setLayout(new BorderLayout());
         initializeUI();
     }
-
     
     private void initializeUI() {
         JPanel headerPanel = createHeaderPanel(" Notifications 🐥");
@@ -66,6 +65,6 @@ public class NotificationsUI extends UIManager {
 
     private void readNotificationFile(){
         notificationManager = new NotificationManager();
-        notificationManager.readFile();
+        notificationManager.readDatabase();
     }
 }

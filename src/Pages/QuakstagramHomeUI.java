@@ -1,8 +1,8 @@
 package src.Pages;
 
-import src.Components.ImageComponent.ContentBox;
+import src.Components.UIComponents.ContentBox;
 import src.Components.Query.ImageDetailQuery;
-import src.Components.ImageComponent.ImageDetails;
+import src.Components.UIComponents.ImageDetails;
 import src.Components.Query.NotificationQuery;
 import src.Components.User.LoggedinUser;
 import src.Components.User.User;
@@ -33,11 +33,11 @@ public class QuakstagramHomeUI extends UIManager {
 
     public QuakstagramHomeUI() {
         notificationManager = new NotificationManager();
-        notificationManager.readFile();
+        notificationManager.readDatabase();
 
         FollowingManager.updateCurrentUser(LoggedinUser.getInstance());
         DataManager dataManager =  new FollowingManager();
-        dataManager.readFile();
+        dataManager.readDatabase();
 
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);

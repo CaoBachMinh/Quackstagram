@@ -40,7 +40,7 @@ public class FollowingManager extends DataManager {
 
     }
     @Override
-    public void readFile() {
+    public void readDatabase() {
         try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
             String line;
             int followingCount=0;
@@ -83,46 +83,7 @@ public class FollowingManager extends DataManager {
             e.printStackTrace();
         }
     }
-    @Override
-    public void updateFile(){
-            boolean found = false;
-            StringBuilder newContent = new StringBuilder();
-            LoggedinUser loggedinUser = LoggedinUser.getInstance();
-            String loggedinUsername = loggedinUser.getUsername();
-            String usernameToFollow = currentUser.getUsername();
-        try{
-            // Read and process following.txt
-            if (Files.exists(followingFilePath)) {
-                try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        String[] parts = line.split(":");
-                        if (parts[0].trim().equals(loggedinUsername)) {
-                            found = true;
-                            if (!line.contains(usernameToFollow)) {
-                                line = line.concat(line.endsWith(":") ? "" : "; ").concat(usernameToFollow);
-                            }
-                        }
-                        newContent.append(line).append("\n");
-                    }
-                }
-            }
-            // If the current user was not found in following.txt, add them
-            if (!found) {
 
-                newContent.append(loggedinUsername).append(": ").append(usernameToFollow).append("\n");
-            }
-
-
-            // Write the updated content back to following.txt
-            try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
-                writer.write(newContent.toString());
-            }
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
     public static void updateCurrentUser(User newCurrentUser) {
         currentUser = newCurrentUser;
     }

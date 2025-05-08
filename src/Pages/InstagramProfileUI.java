@@ -32,7 +32,7 @@ public class InstagramProfileUI extends UIManager {
          // Initialize counts
         dataManager =  new FollowingManager();
         FollowingManager.updateCurrentUser(user);
-        dataManager.readFile();
+        dataManager.readDatabase();
         
         setTitle("DACS Profile");
         setSize(WIDTH, HEIGHT);

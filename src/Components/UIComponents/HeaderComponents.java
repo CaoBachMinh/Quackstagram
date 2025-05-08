@@ -27,7 +27,7 @@ public class HeaderComponents {
         this.isCurrentUser = loggedinUser.getUsername().equals(currentUser.getUsername());
         this.action = new InstagramProfileAction(this);
         dataManager =  new FollowingManager();
-        dataManager.readFile();
+        dataManager.readDatabase();
         setupComponents(currentUser);
     }
 

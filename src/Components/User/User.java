@@ -1,6 +1,6 @@
 package src.Components.User;
 import src.Components.Query.ImageDetailQuery;
-import src.Components.ImageComponent.Picture;
+import src.Components.UIComponents.Picture;
 
 import java.util.*;
 
@@ -8,7 +8,6 @@ import java.util.*;
 public class User {
     private String username;
     private String bio;
-    // private String password;
     private int postsCount;
     private int followersCount;
     private int followingCount;
@@ -17,20 +16,20 @@ public class User {
 
     public User(String username) {
         this.username = username;
-        // this.password = password;
         this.pictures = new ArrayList<>();
-        // Initialize counts to 0
+
         this.postsCount = 0;
         this.followersCount = 0;
         this.followingCount = 0;
     }
 
-
-
-    // Add a picture to the user's profile
-    public void addPicture(Picture picture) {
-        pictures.add(picture);
-        postsCount++;
+    public User(String username, String bio, int postsCount, int followersCount, int followingCount) {
+        this.username = username;
+        this.bio = bio;
+        this.postsCount = postsCount;
+        this.followersCount = followersCount;
+        this.followingCount = followingCount;
+        this.pictures = new ArrayList<>();
     }
 
     // Getter methods for user details
@@ -48,11 +47,11 @@ public class User {
 
     // Setter methods for followers and following counts
     public void setFollowersCount(int followersCount) { this.followersCount = followersCount; }
-   public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
-   public void setPostCount(int postCount) { this.postsCount = postCount;}
+    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
+    public void setPostCount(int postCount) { this.postsCount = postCount;}
     // Implement the toString method for saving user information
-@Override
-public String toString() {
+    @Override
+    public String toString() {
     return username + ":" + bio ; // Format as needed
 }
 

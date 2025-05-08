@@ -1,4 +1,4 @@
-package src.Components.ImageComponent;
+package src.Components.UIComponents;
 
 import java.util.List;
 import java.util.ArrayList;

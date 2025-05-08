@@ -4,23 +4,18 @@ import src.DataManager.CredentialsManager;
 import src.DataManager.DataManager;
 import src.DataManager.ImageDetailManager;
 import src.Feature.SignInUpAction.SignInAction;
+import src.SQLDatabase.Database;
 
 import java.awt.*;
 import javax.swing.*;
 
-
-
-
 public class SignInUI extends BaseUI {
-
     public JTextField txtUsername;
     public JTextField txtPassword;
     private JButton btnSignIn, btnRegisterNow;
-    // private User newUser;
 
-    DataManager credentialsManager;
-    // DataManager followingManager;
-    DataManager imageDetailManager;
+    private DataManager credentialsManager;
+    private DataManager imageDetailManager;
         
     private SignInAction action;
 
@@ -31,15 +26,13 @@ public class SignInUI extends BaseUI {
         action = new SignInAction(this);
         initializeUI();
 
-        credentialsManager = new CredentialsManager();
-        credentialsManager.readFile();
+        Database.openConnection();
 
+        credentialsManager = new CredentialsManager();
+        credentialsManager.readDatabase();
 
         imageDetailManager = new ImageDetailManager();
-        imageDetailManager.readFile();
-
-
-
+        imageDetailManager.readDatabase();
     }
 
     private void initializeUI() {
@@ -59,7 +52,7 @@ public class SignInUI extends BaseUI {
         add(loginPanel, BorderLayout.SOUTH);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        action.configureButtons(btnSignIn, loginPanel, btnRegisterNow, buttonPanel);
+        action.configureButtons(btnSignIn, btnRegisterNow);
     }
 
     public static void main(String[] args) {
@@ -93,7 +86,7 @@ public class SignInUI extends BaseUI {
     }
 
     private JPanel ButtonPanel(JButton btnSignIn, JButton btnRegisterNow) {
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10)); // Grid layout with 1 row, 2 columns
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
         buttonPanel.add(btnSignIn);
         buttonPanel.add(btnRegisterNow);

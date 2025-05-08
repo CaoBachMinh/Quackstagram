@@ -2,70 +2,63 @@ package src.DataManager;
 
 import src.Components.User.LoggedinUser;
 import src.Components.User.User;
+import src.SQLDatabase.Database;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
-public  class CredentialsManager extends DataManager {
-    //this only temporarily stores password, 
-    //and will be erased after  user login successfully
-    private static Map <String,String> userPassword = new HashMap<>(); 
-
-    private static final  String filePath = "data/credentials.txt";
-    private static String username;
-    private static String bio;
-    private static String password ;
+public class CredentialsManager extends DataManager {
 
     public CredentialsManager(){};
 
     @Override
-    public  void readFile() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] parts = line.split(":");
-            String username = parts[0];
-            String bio = parts[2];
-            String password = parts[1];
-            User user = new User(username);
-            user.setBio(bio);
-            userPassword.put(username,password);
-            super.updateUserMap(username,user);
-        }
-        }catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    @Override
-    public void updateFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
-            writer.write(username + ":" + password + ":" + bio);
-            writer.newLine();
-        } catch (IOException e) {
+    public void readDatabase() {
+        try {
+            ResultSet dataset = Database.getUserTable();
+            while (dataset.next()) {
+                String username = dataset.getString("username");
+                String bio = dataset.getString("bio");
+                String password = dataset.getString("password");
+                User user = new User(username);
+                user.setBio(bio);
+                super.updateUserMap(username,user);
+            }
+        }catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static void addNewCredential (String newUsername,String newPassword,String newBio) {
-        username = newUsername;
-        password = newPassword;
-        bio = newBio;
+    public static void addNewCredential(String newUsername, String newPassword, String newBio) {
+        try {
+            Database.insertDataToUser(newUsername,newPassword,newBio);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
   
     protected boolean verifyCredentialsInternal(String username, String password) {
-        if (!userPassword.containsKey(username)) {
-            return false;
+        try {
+            String query = "Select COUNT(*) " +
+                    "From users " +
+                    "Where username=\'"+username+"\' and password=\'"+password+"\'";
+            ResultSet dataset = Database.getDatasetFromQuery(query);
+            while (dataset.next()) {
+                int count = dataset.getInt("COUNT(*)");
+                if (count == 1) {
+                    LoggedinUser.setLoggedinUser(username);
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        if(userPassword.get(username).equals(password)) {
-            LoggedinUser.setLoggedinUser(username);
-            userPassword.clear();
-            return true;
-        }
-        else return false;
+        return false;
     }
     
 }

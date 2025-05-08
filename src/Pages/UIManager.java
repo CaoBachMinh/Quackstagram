@@ -50,11 +50,6 @@ public abstract class UIManager extends JFrame{
             @Override
             public void windowClosing(WindowEvent e) {
                 setVisible(false);
-                System.out.println("Writing files...");
-                DataManager imageDetailManager = new ImageDetailManager();
-                imageDetailManager.updateFile();
-                DataManager notiDataManager = new NotificationManager();
-                notiDataManager.updateFile();
                 System.exit(0);
             }
         });

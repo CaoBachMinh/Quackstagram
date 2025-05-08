@@ -17,21 +17,9 @@ public class NotificationManager extends DataManager {
     private static final  String filePath = "data/notifications.txt"; 
     private static List<String> notificationMessages;
     int lastWrittenIndex =-1;
- 
-    class NotiDetails{
-        private String userWhoLiked;
-        private String imageId;
-        private String timestamp;
 
-        public NotiDetails(String userWhoLiked,String imageId,String timestamp,List<String> notificationMessages) {
-            this.userWhoLiked = userWhoLiked;
-            this.imageId = imageId;
-            this.timestamp = timestamp;
-        }
-        
-    }
     @Override
-    public void readFile() {
+    public void readDatabase() {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {     
             String line;
             LoggedinUser loggedinUser = LoggedinUser.getInstance();
@@ -47,34 +35,6 @@ public class NotificationManager extends DataManager {
                      String timestamp = parts[3].trim();
                      String notificationMessage = userWhoLiked + " liked your picture - " + getElapsedTime(timestamp) + " ago";
                      notificationMessages.add(notificationMessage);
-                }
-            }
-            lastWrittenIndex = notificationMessages.size() - 1;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateFile() {
-        if(notificationMessages==null){
-            return;
-        }
-        if (lastWrittenIndex >= notificationMessages.size() - 1) {
-            return; 
-        }
-
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,true))) {     
-            boolean isFirstWrite = true;
-            for (int i = lastWrittenIndex + 1; i < notificationMessages.size(); i++) {
-                if(isFirstWrite){
-                    writer.write("\n");
-                    isFirstWrite=false;
-                }
-                String message = notificationMessages.get(i);
-                if (!message.isEmpty()) { // Skip empty messages
-                    writer.write(message);
                 }
             }
             lastWrittenIndex = notificationMessages.size() - 1;

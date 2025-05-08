@@ -1,4 +1,4 @@
-package src.Components.ImageComponent;
+package src.Components.UIComponents;
 
 import src.Components.Query.ImageDetailQuery;
 

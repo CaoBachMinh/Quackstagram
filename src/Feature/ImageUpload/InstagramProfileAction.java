@@ -40,7 +40,6 @@ public class InstagramProfileAction {
             if (!currentUserUsername.isEmpty()) {
 
                 FollowingManager.updateCurrentUser(currentUser);
-                dataManager.updateFile();
             }
     }
 
