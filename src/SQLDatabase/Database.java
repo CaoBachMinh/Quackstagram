@@ -4,10 +4,6 @@ import java.sql.*;
 public class Database {
     private static Connection conn;
 
-    public Database() {
-        openConnection();
-    }
-
     public static void openConnection() {
         try {
             conn = DBConnection.getDBConnection();
@@ -18,23 +14,9 @@ public class Database {
         }
     }
 
-    public static void closeConnection() {
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ResultSet getUserTable() throws SQLException {
         Statement stmt = getStatement();
         ResultSet rs = stmt.executeQuery("SELECT * FROM users");
-        return rs;
-    }
-
-    public static ResultSet getLikesTable() throws SQLException {
-        Statement stmt = getStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM likes");
         return rs;
     }
 
@@ -47,12 +29,6 @@ public class Database {
     public static ResultSet getNotificationsTable() throws SQLException {
         Statement stmt = getStatement();
         ResultSet rs = stmt.executeQuery("SELECT * FROM notifications");
-        return rs;
-    }
-
-    public static ResultSet getFollowsTable() throws SQLException {
-        Statement stmt = getStatement();
-        ResultSet rs = stmt.executeQuery("SELECT * FROM follows");
         return rs;
     }
 
@@ -96,10 +72,6 @@ public class Database {
         Statement stmt = getStatement();
         ResultSet rs = stmt.executeQuery(query);
         return rs;
-    }
-
-    public static Connection getConnection() {
-        return conn;
     }
 
     public static Statement getStatement() throws SQLException {

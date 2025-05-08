@@ -108,20 +108,8 @@ public class ContentBox {
         return this.imageId;
     }
 
-    public JLabel getLikesLabel() {
-        return this.likesLabel;
-    }
-
     public ImageDetails getImageDetails() {
         return this.imageDetails;
-    }
-
-    public JLabel getNameLabel() {
-        return this.nameLabel;
-    }
-
-    public JLabel getDescriptionLabel() {
-        return this.descriptionLabel;
     }
 
     public void setLikesLabel(String likesLabel) {
@@ -144,9 +132,5 @@ public class ContentBox {
         infoPanel.add(this.likesLabel); // Likes
         infoPanel.add(this.likeButton);
         return infoPanel;
-    }
-
-    public String getPath(){
-        return this.imageDetails.getImagePath();
     }
 }

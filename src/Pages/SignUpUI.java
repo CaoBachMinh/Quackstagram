@@ -21,7 +21,6 @@ public class SignUpUI extends BaseUI {
         super();
         setTitle("Quackstagram - Register");
         setupCommonUIProperties();
-        Database.openConnection();
         action = new SignUpAction(this);
         initializeUI();
     }

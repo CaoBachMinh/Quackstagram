@@ -69,10 +69,6 @@ public class HeaderComponents {
         return label;
     }
 
-    public boolean getIsCurrentUser() {
-        return isCurrentUser;
-    }
-
     private void createstatsPanel(User currentUser) {
         // Tạo statsPanel
         statsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));

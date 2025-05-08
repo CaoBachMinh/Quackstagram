@@ -68,23 +68,6 @@ public class ImageDetailQuery extends ImageDetailManager {
         return imageDetailsOfFollowers;
     }
 
-
-    public static  List<ImageDetails> getImageListByUsername(String username) {
-        return userToImageMap.get(username);
-    }
-
-    public static  List<ImageDetails> getImageListByUser(User user) {
-        String username = user.getUsername();
-        return userToImageMap.get(username);
-    }
-
-    public static int getImageUserCount(String username) {
-        if (userToImageMap.get(username) ==null)
-            return 0;
-        else
-            return userToImageMap.get(username).size();
-    }
-
     public static int getImageUserCount(User user){
         String username = user.getUsername();
         if(userToImageMap.get(username) ==null)
@@ -102,10 +85,6 @@ public class ImageDetailQuery extends ImageDetailManager {
         return imageDetails.getDescription();
     }
 
-    public static String getImagePath(String imageID) {
-        ImageDetails imageDetails = imagesMap.get(imageID);
-        return imageDetails.getImagePath();
-    }
     public static String getTimestamp(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getTimestamp();
@@ -119,16 +98,6 @@ public class ImageDetailQuery extends ImageDetailManager {
     public static int getLikes(String imageID) {
         ImageDetails imageDetails = imagesMap.get(imageID);
         return imageDetails.getLikes();
-    }
-
-    public static User getUser(String imageID) {
-        ImageDetails imageDetails = imagesMap.get(imageID);
-        return imageDetails.getUser();
-    }
-
-    public static String getImageDetails(String imageID){
-        ImageDetails imageDetails = imagesMap.get(imageID);
-        return imageDetails.toString();
     }
 }
 
