@@ -6,6 +6,7 @@ import src.DataManager.DataManager;
 import src.DataManager.FollowingManager;
 import src.Components.UIComponents.HeaderComponents;
 import src.Pages.InstagramProfileUI;
+import src.SQLDatabase.Database;
 
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
@@ -13,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,7 +39,6 @@ public class InstagramProfileAction {
         LoggedinUser loggedinUser = LoggedinUser.getInstance();
         currentUserUsername = loggedinUser.getUsername();
             System.out.println("Real user is "+currentUserUsername);
-            // If currentUserUsername is not empty, process following.txt
             if (!currentUserUsername.isEmpty()) {
 
                 FollowingManager.updateCurrentUser(currentUser);
@@ -45,22 +47,22 @@ public class InstagramProfileAction {
 
     // Check if the current user is already being followed by the logged-in user
     public void followButton(JButton followButton, String loggedInUsername, User currentUser, DataManager dataManager) {
-        Path followingFilePath = Paths.get("data", "following.txt");
-        try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts[0].trim().equals(loggedInUsername)) {
-                    String[] followedUsers = parts[1].split(";");
-                    for (String followedUser : followedUsers) {
-                        if (followedUser.trim().equals(currentUser.getUsername())) {
+        try {
+            ResultSet dataset = Database.getUserTable();
+            while (dataset.next()) {
+                String username = dataset.getString("username");
+                if (username.equals(loggedInUsername)) {
+                    ResultSet followedUsers = Database.getFollowersTable(username);
+                    while (followedUsers.next()) {
+                        String followedUsername = followedUsers.getString("user_followed");
+                        if (followedUsername.equals(currentUser.getUsername())) {
                             followButton.setText("Following");
                             break;
                         }
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         followButton.addActionListener(e -> {

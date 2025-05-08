@@ -2,6 +2,7 @@ package src.DataManager;
 
 import src.Components.User.LoggedinUser;
 import src.Components.User.User;
+import src.SQLDatabase.Database;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,14 +10,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class FollowingManager extends DataManager {
 
     private static Map <User,FollowDetails> followMap= new HashMap<>();
-    // private static final  String filePath = "data/following.txt"; 
-    private static Path followingFilePath = Paths.get("data", "following.txt");
 
     private static User currentUser ;
 
@@ -41,8 +42,8 @@ public class FollowingManager extends DataManager {
     }
     @Override
     public void readDatabase() {
-        try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
-            String line;
+        try {
+            ResultSet dataset = Database.getUserTable();
             int followingCount=0;
             int followersCount=0;
             Set<String> following = new HashSet<>();
@@ -50,25 +51,21 @@ public class FollowingManager extends DataManager {
             User currentUserInfo = getUserDetails(currentUsername);
             String bio = currentUserInfo.getBio();
 
-            while ((line = followingReader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if(parts.length!=2) continue;
-                else if(parts[1].trim().isEmpty()) continue;
-                
-                String username = parts[0].trim();
-                String[] followingUsers = parts[1].split(";");
-
+            while (dataset.next()) {
+                String username = dataset.getString("username");
+                ResultSet followingUsers = Database.getFollowersTable(username);
                 
                 if (username.equals(currentUsername)) {
-                    followingCount = followingUsers.length;
-                    following = Arrays.stream(followingUsers)
-                    .map(String::trim)
-                    .collect(Collectors.toSet());//only get follower list of loggedin user
-                    
+                    int count = 0;
+                    while (followingUsers.next()) {
+                        count++;
+                        following.add(followingUsers.getString("user_followed"));
+                    }
+                    followingCount = count;
                 } else {
-                    for (String followingUser : followingUsers) {
-                        if (followingUser.trim().equals(currentUsername)) {
-                            followersCount++;
+                    while (followingUsers.next()) {
+                        if (followingUsers.getString("user_followed").equals(currentUsername)) {
+                            followingCount++;
                         }
                     }
                 }                
@@ -78,8 +75,7 @@ public class FollowingManager extends DataManager {
             currentUser.setFollowingCount(followingCount);
             currentUser.setBio(bio);
             followMap.put(currentUser,follwerDetails);
-
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

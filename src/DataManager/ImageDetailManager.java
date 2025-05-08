@@ -32,7 +32,7 @@ public class ImageDetailManager extends DataManager {
                 String imageID = dataset.getString("post_id");
                 String username = dataset.getString("username");
                 String description = dataset.getString("caption");
-                String timestamp = dataset.getString("date");
+                String timestamp = dataset.getString("timestamp");
                 int likes = dataset.getInt("likeCount");
                 String imagePath = dataset.getString("image"); // Assuming PNG format
                 User user = getUserDetails(username);

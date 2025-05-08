@@ -50,6 +50,19 @@ public class Database {
         return rs;
     }
 
+    public static ResultSet getFollowsTable() throws SQLException {
+        Statement stmt = getStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM follows");
+        return rs;
+    }
+
+    public static ResultSet getFollowersTable(String username) throws SQLException {
+        Statement stmt = getStatement();
+        String query = "Select * from follows where username = '" + username + "'";
+        ResultSet rs = stmt.executeQuery(query);
+        return rs;
+    }
+
     public static void insertDataToUser(String username, String password, String bio) throws SQLException {
         String query = "INSERT INTO users " +
                 "(username, bio, followers_count, following_count, password, image, post_count) " +
@@ -67,7 +80,7 @@ public class Database {
 
     public static void insertDataToPost(String imageId, String username, String bio, String imagePath, String timestamp) throws SQLException {
         String query = "INSERT INTO posts" +
-                "(image,caption,likeCount,date,username,post_id)" +
+                "(image,caption,likeCount,timestamp,username,post_id)" +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement pstmt = conn.prepareStatement(query);
         pstmt.setString(1, imagePath);

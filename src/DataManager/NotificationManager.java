@@ -1,12 +1,15 @@
 package src.DataManager;
 
 import src.Components.User.LoggedinUser;
+import src.SQLDatabase.Database;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -14,31 +17,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationManager extends DataManager {
-    private static final  String filePath = "data/notifications.txt"; 
     private static List<String> notificationMessages;
     int lastWrittenIndex =-1;
 
     @Override
     public void readDatabase() {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {     
-            String line;
+        try {
+            ResultSet dataset = Database.getNotificationsTable();
             LoggedinUser loggedinUser = LoggedinUser.getInstance();
             String loggedinUsername = loggedinUser.getUsername();
             notificationMessages = new ArrayList<>();
 
-            while ((line = reader.readLine()) != null) {
-                 String[] parts = line.split(";");
-                if (parts[0].trim().equals(loggedinUsername)) {
+            while (dataset.next()) {
+                String senderUser = dataset.getString("sender_username");
+                if (senderUser.equals(loggedinUsername)) {
                      // Format the notification message
-                     String userWhoLiked = parts[1].trim();
-                     String imageId = parts[2].trim();
-                     String timestamp = parts[3].trim();
+                     String userWhoLiked = dataset.getString("receive_username");
+                     String imageId = dataset.getString("post_id");
+                     String timestamp = dataset.getString("timestamp");
                      String notificationMessage = userWhoLiked + " liked your picture - " + getElapsedTime(timestamp) + " ago";
                      notificationMessages.add(notificationMessage);
                 }
             }
             lastWrittenIndex = notificationMessages.size() - 1;
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
