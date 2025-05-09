@@ -66,6 +66,14 @@ public class Database {
         pstmt.executeUpdate();
     }
 
+    public static void insertDataToFollows(String username, String following) throws SQLException {
+        String query = "INSERT INTO follows (username, user_followed) VALUES (?,?);";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        pstmt.setString(1, username);
+        pstmt.setString(2, following);
+        pstmt.executeUpdate();
+    }
+
     public static void insertDataToNotification(String sender, String receiver, String type, String postId) throws SQLException {
         String query = "INSERT INTO notifications (sender_username,receive_username,type,timestamp,post_id) VALUES" +
                 "(?, ?, ?, ?, ?);";

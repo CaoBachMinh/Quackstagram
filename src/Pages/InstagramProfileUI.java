@@ -45,19 +45,6 @@ public class InstagramProfileUI extends UIManager {
 
         initializeUI();
     }
-
-      public InstagramProfileUI() {
-
-        setTitle("DACS Profile");
-        setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setCloseOperation();
-        setLayout(new BorderLayout());
-        contentPanel = new JPanel();
-        headerPanel = createHeaderPanel();       // Initialize header panel
-        navigationPanel = createNavigationPanel();
-        initializeUI();
-    }
     
     public void initializeUI() {
         getContentPane().removeAll(); // Clear existing components

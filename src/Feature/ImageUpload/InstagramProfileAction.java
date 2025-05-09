@@ -9,13 +9,9 @@ import src.Pages.InstagramProfileUI;
 import src.SQLDatabase.Database;
 
 import java.awt.BorderLayout;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -47,19 +43,15 @@ public class InstagramProfileAction {
 
     // Check if the current user is already being followed by the logged-in user
     public void followButton(JButton followButton, String loggedInUsername, User currentUser, DataManager dataManager) {
+        AtomicBoolean isFollowing = new AtomicBoolean(false);
         try {
-            ResultSet dataset = Database.getUserTable();
-            while (dataset.next()) {
-                String username = dataset.getString("username");
-                if (username.equals(loggedInUsername)) {
-                    ResultSet followedUsers = Database.getFollowersTable(username);
-                    while (followedUsers.next()) {
-                        String followedUsername = followedUsers.getString("user_followed");
-                        if (followedUsername.equals(currentUser.getUsername())) {
-                            followButton.setText("Following");
-                            break;
-                        }
-                    }
+            ResultSet followedUsers = Database.getFollowersTable(loggedInUsername);
+            while (followedUsers.next()) {
+                String followedUsername = followedUsers.getString("user_followed");
+                if (followedUsername.equals(currentUser.getUsername())) {
+                    followButton.setText("Following");
+                    isFollowing.set(true);
+                    break;
                 }
             }
         } catch (SQLException e) {
@@ -67,6 +59,14 @@ public class InstagramProfileAction {
         }
         followButton.addActionListener(e -> {
             handleFollowAction(dataManager, currentUser);
+            try {
+                if (!isFollowing.get()) {
+                    Database.insertDataToFollows(loggedInUsername,currentUser.getUsername());
+                    isFollowing.set(true);
+                }
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
             followButton.setText("Following");
         });
     }
