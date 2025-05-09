@@ -26,8 +26,6 @@ public class ContentBox {
         this.setUpLikeButton(likeButtonColor);
     }
 
-    public ContentBox(){}
-
     private void setUpItemPanel() {
         this.itemPanel = new JPanel();
         this.itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));

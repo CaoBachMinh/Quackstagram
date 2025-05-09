@@ -1,5 +1,7 @@
 package src.SQLDatabase;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Database {
     private static Connection conn;
@@ -54,6 +56,29 @@ public class Database {
         pstmt.executeUpdate();
     }
 
+    public static void insertDataToLikes(String username, String postId, String notificationId) throws SQLException {
+        String query = "INSERT INTO likes (username, post_id, notification_id) VALUES " +
+                "(?,?,?);";
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        pstmt.setString(1, username);
+        pstmt.setString(2, postId);
+        pstmt.setString(3, notificationId);
+        pstmt.executeUpdate();
+    }
+
+    public static void insertDataToNotification(String sender, String receiver, String type, String postId) throws SQLException {
+        String query = "INSERT INTO notifications (sender_username,receive_username,type,timestamp,post_id) VALUES" +
+                "(?, ?, ?, ?, ?);";
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        PreparedStatement pstmt = conn.prepareStatement(query);
+        pstmt.setString(1, sender);
+        pstmt.setString(2, receiver);
+        pstmt.setString(3, "like");
+        pstmt.setString(4, timestamp);
+        pstmt.setString(5, postId);
+        pstmt.executeUpdate();
+    }
+
     public static void insertDataToPost(String imageId, String username, String bio, String imagePath, String timestamp) throws SQLException {
         String query = "INSERT INTO posts" +
                 "(image,caption,likeCount,timestamp,username,post_id)" +
@@ -72,6 +97,31 @@ public class Database {
         Statement stmt = getStatement();
         ResultSet rs = stmt.executeQuery(query);
         return rs;
+    }
+
+    public static void likeIncrement(String imageId,int likeCount, String loggedUser, String receivedUser) throws SQLException {
+        String query = "Update posts " +
+                "Set likeCount=?"+
+                " where post_id=?";
+        try (PreparedStatement updatePost = conn.prepareStatement(query)) {
+            updatePost.setInt(1, likeCount);
+            updatePost.setString(2, imageId);
+            updatePost.executeUpdate();
+        }
+
+        insertDataToNotification(loggedUser,receivedUser,"like",imageId);
+
+        query = "Select notification_id from notifications " +
+        "WHERE sender_username=? and receive_username=? ;";
+        try (PreparedStatement getNotificationData = conn.prepareStatement(query)) {
+            getNotificationData.setString(1, loggedUser);
+            getNotificationData.setString(2, receivedUser);
+            ResultSet rs = getNotificationData.executeQuery();
+            while (rs.next()) {
+                String notificationId = rs.getString("notification_id");
+                insertDataToLikes(loggedUser,imageId,notificationId);
+            }
+        }
     }
 
     public static Statement getStatement() throws SQLException {

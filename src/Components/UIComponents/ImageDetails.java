@@ -1,7 +1,10 @@
 package src.Components.UIComponents;
 
+import src.Components.User.LoggedinUser;
 import src.Components.User.User;
+import src.SQLDatabase.Database;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +55,11 @@ public class ImageDetails {
 
     public void incrementLikes(){
         likes++;
+        try {
+            Database.likeIncrement(imageID,likes, LoggedinUser.getInstance().getUsername(), user.getUsername());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
     public int getLikes() {
         return likes;
